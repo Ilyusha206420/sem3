@@ -1,0 +1,10 @@
+myArray* initEmptyArray(int arrLen);
+myArray* initRandomArray(int max, int arrLen);
+myArray* initFileArray(char* fileName, int arrLen);
+myArray* initShellArr(int arrLen);
+void printArray(myArray* inp);
+void freeArray(myArray *inp);
+myStr* newStr();
+void reallocStr(myStr *s, int newSize);
+void addToStr(myStr *s, char c);
+char* readStrFromKB();
