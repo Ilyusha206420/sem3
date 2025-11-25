@@ -1,6 +1,7 @@
 #include "hashMap.h"
 
 #include <stdlib.h>
+#include "myString.h"
 
 HashMap* HMinit(unsigned long nop) 
 {
@@ -102,23 +103,50 @@ HMPnode* HMPNinit(char *key, char *val)
   return out;
 }
 
+HMPnode* HMPfind(HMpocket *pocket, char *key)
+{
+  HMPnode *res = pocket->begin;
+  while (res) {
+    if (myStrCmp(res->key, key)) {
+      return res;
+    }
+    res = res->next;
+  }
+  return NULL;
+}
+
 int HMadd(HashMap *hm, char *key, char *val)
 {
   if (hm->numberOfElements >= (hm->numberOfPockets / 2)) 
     HMresize(hm);
-  HMPnode *newElem = HMPNinit(key, val);
-  if (!newElem)
-    return -1;
 
   HMpocket *pocket = &hm->map[FNV1Hash(key) % hm->numberOfPockets];
-  if (pocket->end) {
-    pocket->end->next = newElem;
-    pocket->end = newElem;
-  }
+  HMPnode *elem = HMPfind(pocket, key);
+  if (elem) 
+    elem->val = val;
   else {
-    pocket->begin = newElem;
+    HMPnode *newElem = HMPNinit(key, val);
+    if (!newElem)
+      return -1;
+
+    if (pocket->end)
+      pocket->end->next = newElem;
+    else
+      pocket->begin = newElem;
+      
     pocket->end = newElem;
+
+    hm->numberOfElements += 1;
   }
-  hm->numberOfElements += 1;
+  
   return 0;
+}
+
+int HMfind(HashMap *hm, char *key, char **buf)
+{
+  HMPnode *node = HMPfind(&hm->map[FNV1Hash(key) % hm->numberOfPockets], key);
+  if (!node)
+    return 0;
+  myStrCpy(node->val, buf);
+  return 1;
 }

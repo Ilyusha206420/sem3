@@ -24,3 +24,5 @@ HashMap* HMinit(unsigned long nop);
 void HMfree(HashMap *hm);
 
 int HMadd(HashMap *hm, char *key, char *val);
+int HMfind(HashMap *hm, char *key, char **buf);
+void HMdelet(HashMap *hm, char *key);
