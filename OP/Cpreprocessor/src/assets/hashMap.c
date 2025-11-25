@@ -183,10 +183,12 @@ void HMdelete(HashMap *hm, char *key)
   if (!node)
     return;
 
-  if (&(pocket->begin) == &node) 
+  if (pocket->begin == node)
     pocket->begin = node->next;
-  if (&(pocket->end) == &node)
+
+  if (pocket->end == node)
     pocket->end = prev;
+
   if (prev)
     prev->next = node->next;
 
