@@ -162,7 +162,7 @@ int HMadd(HashMap *hm, char *key, char *val)
   return 0;
 }
 
-int HMfind(HashMap *hm, char *key, char **buf)
+int HMget(HashMap *hm, char *key, char **buf)
 {
   HMPnode *node = HMPfind(&hm->map[hashFunc(key) % hm->numberOfPockets], key);
   if (!node)
