@@ -10,7 +10,7 @@ int main(int argc, char **argv)
   HMadd(test, "fourthKey", "fourthVal");
   HMadd(test, "testKey", "newTestVal");
   HMadd(test, "fifthKey", "");
-  HMdelete(test, "testKey");
+  // HMdelete(test, "testKey");
 
   for (int i = 0; i < test->numberOfPockets; i++) {
     printf("[%d]   ", i);
