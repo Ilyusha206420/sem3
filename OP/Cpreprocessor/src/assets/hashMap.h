@@ -16,9 +16,11 @@ typedef struct
 typedef struct 
 {
   HMpocket *map;
-  unsigned long nummberOfPockets;
+  unsigned long numberOfPockets;
   unsigned long numberOfElements;
 } HashMap;
 
 HashMap* HMinit(unsigned long nop);
 void HMfree(HashMap *hm);
+
+int HMadd(HashMap *hm, char *key, char *val);
