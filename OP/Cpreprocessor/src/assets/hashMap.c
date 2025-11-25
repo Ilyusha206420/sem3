@@ -1,5 +1,6 @@
 #include "hashMap.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "myString.h"
 
@@ -149,4 +150,28 @@ int HMfind(HashMap *hm, char *key, char **buf)
     return 0;
   myStrCpy(node->val, buf);
   return 1;
+}
+
+void HMdelete(HashMap *hm, char *key)
+{
+  HMpocket *pocket = &hm->map[FNV1Hash(key) % hm->numberOfPockets];
+  HMPnode *node = pocket->begin;
+  HMPnode *prev = NULL;
+  while (node && !myStrCmp(node->key, key)) {
+    prev = node;
+    node = node->next;
+  }
+  if (!node)
+    return;
+
+  if (&(pocket->begin) == &node) 
+    pocket->begin = node->next;
+  if (&(pocket->end) == &node)
+    pocket->end = prev;
+  if (prev)
+    prev->next = node->next;
+
+  free(node->key);
+  free(node->val);
+  free(node);
 }

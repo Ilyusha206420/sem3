@@ -9,6 +9,9 @@ int main(int argc, char **argv)
   HMadd(test, "thirdKey", "thirdVal");
   HMadd(test, "fourthKey", "fourthVal");
   HMadd(test, "testKey", "newTestVal");
+  HMadd(test, "fifthKey", "");
+  HMdelete(test, "testKey");
+
   for (int i = 0; i < test->numberOfPockets; i++) {
     printf("[%d]   ", i);
     HMPnode *node = test->map[i].begin;
