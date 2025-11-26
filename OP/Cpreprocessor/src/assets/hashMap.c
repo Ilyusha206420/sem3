@@ -1,16 +1,8 @@
 #include "hashMap.h"
 
 #include <stdlib.h>
+#include "utils.h"
 #include "myString.h"
-
-void* myAllocMemory(unsigned int size) 
-{
-  int try = 0;
-  void *res = NULL;
-  while (try++, !res && try < 10000)
-    res = malloc(size);
-  return res;
-}
 
 unsigned long hashFunc (char *str)
 {
