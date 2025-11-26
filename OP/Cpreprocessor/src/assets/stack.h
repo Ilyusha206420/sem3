@@ -2,9 +2,16 @@
 
 #include <stdio.h>
 
-typedef struct FSnode
+typedef struct
 {
   FILE *fp;
+  char *filename;
+  int doubleIncludeProtection;
+} FileStruct;
+
+typedef struct FSnode
+{
+  FileStruct *f;
   struct FSnode *next;
 } FSnode;
 
@@ -13,8 +20,8 @@ typedef struct
   FSnode *top;
 } FileStack;
 
-FileStack* FSinit();
-void FSfree(FileStack *fs);
+FileStack* FStackInit();
+void FStackFree(FileStack *fs);
 
-void FSpush(FileStack *fs, FILE *fp);
-FILE* FSpop(FileStack *fs);
+int FStackPush(FileStack *fs, FILE *fp, char *filename, int protection);
+FileStruct* FStackPop(FileStack *fs);

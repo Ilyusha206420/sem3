@@ -10,7 +10,12 @@ int processFile(char *input, char *output)
   if (!ifp)
     return FILE_OPEN_ERROR;
   
+  FILE *tmp = openFile("/tmp/myPreprocessorTmp", "w");
+  if (!tmp)
+    return TMP_FILE_CREATE_ERROR;
+
   
+
   return 0;
 }
 
