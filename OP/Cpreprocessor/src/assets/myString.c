@@ -87,7 +87,7 @@ int MSgetLine(myString *ms, FILE *f)
           while (ch = getc(f), !(ch == '/' && prev == '*') && ch != EOF) 
             prev = ch;
           break;
-          
+
         default:
           ms->str[len++] = prev;
           ms->str[len++] = ch;

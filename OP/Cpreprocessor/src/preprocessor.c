@@ -26,9 +26,9 @@ int processFile(char *input, char *output)
   if (err)
     return err;
   
-  char ch;
-  while (MSgetLine(MSbuf, ifp) != 1) {
-    printf("%s\n", MSbuf->str);
+  err = 0;
+  while (err != 1) {
+    
   }
 
   fclose(ifp);
