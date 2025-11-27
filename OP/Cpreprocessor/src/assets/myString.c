@@ -35,7 +35,8 @@ int MSgetLine(myString *ms, FILE *f)
   char ch;
   char prev = 0;
   unsigned long len = 0;
-  int inVovels = 0;
+  int inQuot = 0;
+  char qout = 0;
   while (ch = getc(f), ch != EOF && ch != '\n') {
     if (ms->cap < len + 1) {
       char *newStr = NULL;
@@ -56,8 +57,18 @@ int MSgetLine(myString *ms, FILE *f)
       ms->cap = newCap;
     }
     
-    if (ch == '\'' || ch == '"')
-      inVovels = inVovels == 0 ? 1 : 0;
+    if (ch == '\'' || ch == '"') {
+      if (inQuot) {
+        if (ch == qout) {
+          qout = 0;
+          inQuot = 0;
+        }
+      }
+      else {
+        qout = ch;
+        inQuot = 1;
+      }
+    }
 
     if (ch == '\\') {
       prev = ch;
@@ -70,7 +81,7 @@ int MSgetLine(myString *ms, FILE *f)
       }
     }
 
-    else if (ch == '/' && !inVovels) {
+    else if (ch == '/' && !inQuot) {
       prev = ch;
       ch = getc(f);
       switch (ch) {
@@ -130,4 +141,13 @@ void myStrCpy(char *str, char **buf)
     *c++ = *str++;
   }
   *c = '\0';
+}
+
+int myStrStr(char *str1, char *str2)
+{
+  while (*str1 && *str2) {
+    if (*str1++ != *str2++)
+      return 0;
+  }
+  return *str2 == '\0';
 }

@@ -13,6 +13,8 @@ includes, define/undef, if/ifdef/ifndef, macro inserting
 */
 
 int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm, myString **ms);
+int closeFilesWithError(FILE *fp1, FILE *fp2, int errCode);
+int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs);
 
 int processFile(char *input, char *output)
 {
@@ -26,9 +28,15 @@ int processFile(char *input, char *output)
   if (err)
     return err;
   
+  FileStruct *curFile = fstack->top->f;
   err = 0;
-  while (err != 1) {
-    
+  while (curFile) {
+    err = MSgetLine(MSbuf, curFile->fp);
+    if (err == 1)
+      curFile = FStackPop(fstack);
+    if (err == -1) 
+      return closeFilesWithError(ifp, ofp, MEMORY_ALLOC_ERROR);
+    processLine(MSbuf, ofp, hm, fstack); 
   }
 
   fclose(ifp);
@@ -37,8 +45,59 @@ int processFile(char *input, char *output)
   return 0;
 }
 
-//gluing \
-test
+int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
+{
+  char *chptr = string->str;
+  while (*chptr) {
+    if (*chptr == '#') {
+      chptr += 1;
+      if (myStrStr(chptr, "include ")) {
+        while (*chptr && *chptr != ' ') chptr++;
+        while (*chptr && *chptr == ' ') chptr++;
+        if (*chptr == '<') {
+          
+        }
+
+        else if (*chptr == '"') {
+          
+        }
+
+        else 
+          return HEADER_FILE_OPENINNG_ERROR;
+      }
+        
+      else if (myStrStr(chptr, "define ")) {
+        while (*chptr++ != ' ');
+        while (*chptr++ == ' ');
+
+      }
+
+      else if (myStrStr(chptr, "undef ")) {
+        while (*chptr++ != ' ');
+        while (*chptr++ == ' ');
+      }
+
+      else if (myStrStr(chptr, "if ")) {
+        while (*chptr++ != ' ');
+        while (*chptr++ == ' ');
+      }
+
+      else if (myStrStr(chptr, "ifdef ")) {
+        while (*chptr++ != ' ');
+        while (*chptr++ == ' ');
+      }
+
+      else if (myStrStr(chptr, "ifndef ")) {
+        while (*chptr++ != ' ');
+        while (*chptr++ == ' ');
+      }
+    }
+    else 
+      fputc(*chptr++, ofp);
+  }
+  fputc('\n', ofp);
+  return 0;
+}
 
 FILE* openFile(char *fileName, char *mode)
 {

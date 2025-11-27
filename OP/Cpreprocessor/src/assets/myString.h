@@ -17,3 +17,4 @@ int MSgetLine(myString *ms, FILE *f);
 int myStrCmp(char *str1, char *str2);
 unsigned long myStrGetLen(char *str);
 void myStrCpy(char *str, char **buf);
+int myStrStr(char *str1, char *str2);
