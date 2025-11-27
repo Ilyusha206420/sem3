@@ -2,9 +2,17 @@
 
 #include <stdio.h>
 #include "assets/hashMap.h"
+#include "assets/myString.h"
 #include "assets/stack.h"
 
-int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm);
+/*
+TODO : 
+includes, define/undef, if/ifdef/ifndef, macro inserting
+* Complete:
+* str gluing, comment delete 
+*/
+
+int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm, myString **ms);
 
 int processFile(char *input, char *output)
 {
@@ -12,14 +20,15 @@ int processFile(char *input, char *output)
   FILE *ofp = NULL;
   FileStack *fstack = NULL;
   HashMap *hm = NULL;
+  myString *MSbuf = NULL;
 
-  int err = prepairVars(&ifp, input, &ofp, output, &fstack, &hm);
+  int err = prepairVars(&ifp, input, &ofp, output, &fstack, &hm, &MSbuf);
   if (err)
     return err;
   
   char ch;
-  while (ch = getc(ifp), ch != EOF) {
-    fputc(ch, ofp);
+  while (MSgetLine(MSbuf, ifp) != 1) {
+    printf("%s\n", MSbuf->str);
   }
 
   fclose(ifp);
@@ -27,6 +36,9 @@ int processFile(char *input, char *output)
 
   return 0;
 }
+
+//gluing \
+test
 
 FILE* openFile(char *fileName, char *mode)
 {
@@ -44,7 +56,7 @@ int closeFilesWithError(FILE *fp1, FILE *fp2, int errCode)
   return errCode;
 }
 
-int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm)
+int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm, myString **ms)
 {
   *ifp = openFile(inpName, "r");
   if (!ifp)
@@ -65,9 +77,14 @@ int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack 
     return closeFilesWithError(*ifp, *ofp, STACK_ERROR);
   
   *hm = HMinit(1024);
-  for (int i = 512; i > 0 && !hm; i /= 2) 
+  for (int i = 512; i > 0 && !*hm; i /= 2) 
     *hm = HMinit(i);
   if (!hm)
+    return closeFilesWithError(*ifp, *ofp, MEMORY_ALLOC_ERROR);
+
+  for (unsigned long len = 1024; len > 0 && !*ms; len /= 2)
+    *ms = myStringInit(len);
+  if (!ms)
     return closeFilesWithError(*ifp, *ofp, MEMORY_ALLOC_ERROR);
 
   return 0;
