@@ -2,6 +2,6 @@
 
 int main(int argc, char **argv)
 {
-  processFile("test.c", "processed.c");
+  processFile("src/preprocessor.c", "processed.c");
   return 0;
 }
