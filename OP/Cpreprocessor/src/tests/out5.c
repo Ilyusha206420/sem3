@@ -1,2 +1,0 @@
-int correct = 1;
-

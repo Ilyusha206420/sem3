@@ -36,7 +36,7 @@ int MSgetLine(myString *ms, FILE *f)
   size_t len = 0;
   int inQuot = 0;
   char qout = 0;
-  while (ch = getc(f), ch != EOF && ch != '\n') {
+  while (ch = getc(f), ch != EOF && ch != '\n' && ch != '\r') {
     if (ms->cap < len + 1) {
       char *newStr = NULL;
       size_t newCap = ms->cap * 2;

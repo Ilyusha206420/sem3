@@ -435,11 +435,11 @@ int closeFilesWithError(FILE *fp1, FILE *fp2, int errCode)
 
 int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm, myString **ms)
 {
-  *ifp = openFile(inpName, "r");
+  *ifp = openFile(inpName, "rt");
   if (!*ifp)
     return FILE_OPEN_ERROR;
 
-  *ofp = openFile(outName, "w");
+  *ofp = openFile(outName, "wt");
   if (!*ofp) {
     fclose(*ifp);
     return FILE_CREATE_ERROR;
