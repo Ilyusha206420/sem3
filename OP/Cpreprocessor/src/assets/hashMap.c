@@ -6,12 +6,12 @@
 
 unsigned long hashFunc (char *str)
 {
-  unsigned long hval = 0xcbf29ce484222325;
+  unsigned long long hval = 0xcbf29ce484222325ULL;
   while (*str) {
-    hval ^= (unsigned long)*str++;
-    hval *= 0x100000001b3;
+    hval ^= (unsigned long long)(unsigned char)*str++;
+    hval *= 0x100000001b3ULL;
   }
-  return hval;
+  return (unsigned long)hval;
 }
 
 HashMap* HMinit(unsigned long nop) 
@@ -26,7 +26,7 @@ HashMap* HMinit(unsigned long nop)
     return NULL;
   }
 
-  for (int i = 0; i < nop; i++) {
+  for (size_t i = 0; i < nop; i++) {
     out->map[i] = (HMpocket) {NULL, NULL};
   }
 
@@ -38,7 +38,7 @@ HashMap* HMinit(unsigned long nop)
 
 void HMfree(HashMap *hm)
 {
-  for (int i = 0; i < hm->numberOfPockets; i++) {
+  for (size_t i = 0; i < hm->numberOfPockets; i++) {
     HMPnode *node = hm->map[i].begin;
     while (node) {
       hm->map[i].begin = node->next;
@@ -59,7 +59,7 @@ void HMresize(HashMap *hm)
   if (!newMap)
     return;
   
-  for (int i = 0; i < hm->numberOfPockets; i++) {
+  for (size_t i = 0; i < hm->numberOfPockets; i++) {
     HMPnode *node = hm->map[i].begin;
     while (node) {
       HMpocket *pocket = &newMap[hashFunc(node->key) % newSize];
@@ -85,13 +85,11 @@ HMPnode* HMPNinit(char *key, char *val)
   HMPnode *out = (HMPnode*)myAllocMemory(sizeof(HMPnode));
   if (!out) 
     return NULL;
-
   out->key = (char*)myAllocMemory(sizeof(char) * (myStrGetLen(key) + 1));
   if (!out->key) {
     free(out);
     return NULL;
   } 
-
   out->val = (char*)myAllocMemory(sizeof(char) * (myStrGetLen(val) + 1));
   if (!out->val) {
     free(out->key);

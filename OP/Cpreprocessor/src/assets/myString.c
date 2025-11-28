@@ -16,7 +16,7 @@ myString* myStringInit(unsigned long cap)
     return NULL;
   }
 
-  for (int i = 0; i < cap; i++)
+  for (size_t i = 0; i < cap; i++)
     out->str[i] = '\0';
 
   out->cap = cap;
@@ -46,10 +46,10 @@ int MSgetLine(myString *ms, FILE *f)
       if (!newStr)
         return -1;
 
-      for (unsigned long i = 0; i < ms->cap; i++)
+      for (size_t i = 0; i < ms->cap; i++)
         newStr[i] = ms->str[i];
 
-      for (unsigned long i = ms->cap; i < newCap; i++)
+      for (size_t i = ms->cap; i < newCap; i++)
         newStr[i] = 0;
 
       free(ms->str);
@@ -108,7 +108,7 @@ int MSgetLine(myString *ms, FILE *f)
     else 
       ms->str[len++] = ch;
   }
-  for (int i = len; i < ms->cap; i++)
+  for (size_t i = len; i < ms->cap; i++)
     ms->str[i] = '\0';
   ms->len = len;
 

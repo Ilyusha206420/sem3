@@ -1,0 +1,2 @@
+int result = 1;
+
