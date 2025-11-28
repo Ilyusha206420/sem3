@@ -1,8 +1,8 @@
 #include "hashMap.h"
 
-#include <stdlib.h>
 #include "utils.h"
 #include "myString.h"
+#include <stddef.h>
 
 unsigned long hashFunc (char *str)
 {
@@ -14,7 +14,7 @@ unsigned long hashFunc (char *str)
   return (unsigned long)hval;
 }
 
-HashMap* HMinit(unsigned long nop) 
+HashMap* HMinit(size_t nop) 
 {
   HashMap *out = (HashMap*)myAllocMemory(sizeof(HashMap));
   if (!out)
@@ -54,7 +54,7 @@ void HMfree(HashMap *hm)
 
 void HMresize(HashMap *hm)
 {
-  unsigned long newSize = hm->numberOfPockets * 2;
+  size_t newSize = hm->numberOfPockets * 2;
   HMpocket *newMap = (HMpocket*)myAllocMemory(sizeof(HMpocket) * newSize);
   if (!newMap)
     return;

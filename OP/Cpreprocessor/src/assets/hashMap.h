@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdlib.h>
+
 typedef struct HMPnode
 {
   char *key;
@@ -16,11 +18,11 @@ typedef struct
 typedef struct 
 {
   HMpocket *map;
-  unsigned long numberOfPockets;
-  unsigned long numberOfElements;
+  size_t numberOfPockets;
+  size_t numberOfElements;
 } HashMap;
 
-HashMap* HMinit(unsigned long nop);
+HashMap* HMinit(size_t nop);
 void HMfree(HashMap *hm);
 
 int HMadd(HashMap *hm, char *key, char *val);

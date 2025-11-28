@@ -1,15 +1,16 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct
 {
   char *str;
-  unsigned long len;
-  unsigned long cap;
+  size_t len;
+  size_t cap;
 } myString;
 
-myString* myStringInit(unsigned long cap);
+myString* myStringInit(size_t cap);
 void myStringFree(myString *ms);
 
 int MSgetLine(myString *ms, FILE *f);

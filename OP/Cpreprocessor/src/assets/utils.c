@@ -1,8 +1,6 @@
 #include "utils.h"
 
-#include <stdlib.h>
-
-void* myAllocMemory(unsigned int size) 
+void* myAllocMemory(size_t size) 
 {
   int try = 0;
   void *res = NULL;

@@ -24,15 +24,18 @@ int addDefinedName(const char *name)
   if (defCount + 1 >= defCap) {
     size_t nc = defCap ? defCap * 2 : 16;
     char **nb = (char**)myAllocMemory(sizeof(char*) * nc);
-    if (!nb) return -1;
-    for (size_t i = 0; i < defCount; ++i) nb[i] = definedNames[i];
+    if (!nb) 
+      return -1;
+    for (size_t i = 0; i < defCount; ++i) 
+      nb[i] = definedNames[i];
     free(definedNames);
     definedNames = nb;
     defCap = nc;
   }
   size_t len = myStrGetLen((char*)name);
   char *s = (char*)myAllocMemory(len + 1);
-  if (!s) return -1;
+  if (!s) 
+    return -1;
   myStrCpy((char*)name, &s);
   definedNames[defCount++] = s;
   return 0;
@@ -40,7 +43,9 @@ int addDefinedName(const char *name)
 
 void removeDefinedName(const char *name)
 {
-  if (!name || defCount == 0) return;
+  if (!name || defCount == 0) 
+    return;
+
   for (size_t i = 0; i < defCount; ++i) {
     if (myStrCmp(definedNames[i], (char*)name)) {
       free(definedNames[i]);
@@ -51,10 +56,13 @@ void removeDefinedName(const char *name)
   }
 }
 
-int hasDefinedName(const char *name)
+int hasDefinedName(char *name)
 {
-  if (!name) return 0;
-  for (size_t i = 0; i < defCount; ++i) if (myStrCmp(definedNames[i], (char*)name)) return 1;
+  if (!name) 
+    return 0;
+  for (size_t i = 0; i < defCount; ++i) 
+    if (myStrCmp(definedNames[i], (char*)name)) 
+      return 1;
   return 0;
 }
 
@@ -84,13 +92,15 @@ int ensureIfStackCapacity()
 
 int currentParentActive()
 {
-  if (ifStackTop == 0) return 1;
+  if (ifStackTop == 0) 
+    return 1;
   return ifActiveStack[ifStackTop - 1];
 }
 
 int currentActive()
 {
-  if (ifStackTop == 0) return 1;
+  if (ifStackTop == 0) 
+    return 1;
   return ifActiveStack[ifStackTop - 1];
 }
 
@@ -107,13 +117,15 @@ void pushIfLevel(int condResult)
 
 void popIfLevel()
 {
-  if (ifStackTop == 0) return;
+  if (ifStackTop == 0) 
+    return;
   ifStackTop--;
 }
 
 void handleElse()
 {
-  if (ifStackTop == 0) return;
+  if (ifStackTop == 0) 
+    return;
   int parent = (ifStackTop >= 2) ? ifActiveStack[ifStackTop - 2] : 1;
   int taken = branchTakenStack[ifStackTop - 1];
   int newActive = parent && !taken;
@@ -123,7 +135,9 @@ void handleElse()
 
 void handleElif(int condResult)
 {
-  if (ifStackTop == 0) return;
+  if (ifStackTop == 0) 
+    return;
+  
   int parent = (ifStackTop >= 2) ? ifActiveStack[ifStackTop - 2] : 1;
   int taken = branchTakenStack[ifStackTop - 1];
   if (!parent || taken) {
@@ -132,7 +146,8 @@ void handleElif(int condResult)
   }
   int active = condResult ? 1 : 0;
   ifActiveStack[ifStackTop - 1] = active;
-  if (active) branchTakenStack[ifStackTop - 1] = 1;
+  if (active) 
+    branchTakenStack[ifStackTop - 1] = 1;
 }
 
 int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm, myString **ms);
@@ -177,24 +192,27 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
 
   char *s = string->str;
   size_t i = 0;
-  /* skip leading whitespace */
-  while (s[i] == ' ' || s[i] == '\t') i++;
+  while (s[i] == ' ' || s[i] == '\t') 
+    i++;
 
   if (s[i] == '#') {
     i++;
-    while (s[i] == ' ' || s[i] == '\t') i++;
-    /* read directive */
+    while (s[i] == ' ' || s[i] == '\t') 
+      i++;
     char dir[64] = {0};
     size_t di = 0;
     while (s[i] && s[i] != ' ' && s[i] != '\t') {
-      if (di + 1 < sizeof(dir)) dir[di++] = s[i];
+      if (di + 1 < sizeof(dir)) 
+        dir[di++] = s[i];
       i++;
     }
     dir[di] = '\0';
 
     if (myStrCmp(dir, "include")) {
-      if (!currentActive()) return 0;
-      while (s[i] == ' ' || s[i] == '\t') i++;
+      if (!currentActive()) 
+        return 0;
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
       if (s[i] == '"') {
         i++;
         char incname[1024] = {0};
@@ -203,7 +221,6 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
           incname[ii++] = s[i++];
         incname[ii] = '\0';
 
-        /* build path relative to current file */
         char filepath[2048] = {0};
         char *curfn = NULL;
         if (fs && fs->top && fs->top->f && fs->top->f->filename)
@@ -232,35 +249,65 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
       }
     }
     else if (myStrCmp(dir, "ifdef")) {
-      while (s[i] == ' ' || s[i] == '\t') i++;
-      char key[256] = {0}; size_t ki = 0;
-      while (s[i] && s[i] != ' ' && s[i] != '\t') { if (ki + 1 < sizeof(key)) key[ki++] = s[i]; i++; }
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
+      char key[256] = {0}; 
+      size_t ki = 0;
+      while (s[i] && s[i] != ' ' && s[i] != '\t') { 
+        if (ki + 1 < sizeof(key)) 
+          key[ki++] = s[i]; 
+        i++; 
+      }
+
       key[ki] = '\0';
-      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) { key[--ki] = '\0'; }
-      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) { key[--ki] = '\0'; }
+      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) 
+        key[--ki] = '\0'; 
+
+      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) 
+        key[--ki] = '\0'; 
+
       int cond = 0;
       if (myStrGetLen(key) > 0) {
-        /* check our defined list first, then hashmap */
-        if (hasDefinedName(key)) cond = 1;
-        else if (hm) { char *tmp = NULL; cond = HMget(hm, key, &tmp); }
+        if (hasDefinedName(key)) 
+          cond = 1;
+        else if (hm) { 
+          char *tmp = NULL; 
+          cond = HMget(hm, key, &tmp); 
+        }
       }
       pushIfLevel(cond);
     }
     else if (myStrCmp(dir, "ifndef")) {
-      while (s[i] == ' ' || s[i] == '\t') i++;
-      char key[256] = {0}; size_t ki = 0;
-      while (s[i] && s[i] != ' ' && s[i] != '\t') { if (ki + 1 < sizeof(key)) key[ki++] = s[i]; i++; }
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
+
+      char key[256] = {0}; 
+      size_t ki = 0;
+      while (s[i] && s[i] != ' ' && s[i] != '\t') { 
+        if (ki + 1 < sizeof(key)) 
+          key[ki++] = s[i]; 
+        i++; 
+      }
+
       key[ki] = '\0';
-      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) { key[--ki] = '\0'; }
+      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) 
+        key[--ki] = '\0'; 
+
       int cond = 1;
       if (myStrGetLen(key) > 0) {
-        if (hasDefinedName(key)) cond = 0;
-        else if (hm) { char *tmp = NULL; cond = !HMget(hm, key, &tmp); }
+        if (hasDefinedName(key)) 
+          cond = 0;
+        else if (hm) { 
+          char *tmp = NULL; 
+          cond = !HMget(hm, key, &tmp); 
+        }
       }
       pushIfLevel(cond);
     }
+
     else if (myStrCmp(dir, "if")) {
-      while (s[i] == ' ' || s[i] == '\t') i++;
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
       int cond = evalIfExpr(s + i, hm);
       pushIfLevel(cond);
     }
@@ -268,7 +315,8 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
       handleElse();
     }
     else if (myStrCmp(dir, "elif")) {
-      while (s[i] == ' ' || s[i] == '\t') i++;
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
       int cond = evalIfExpr(s + i, hm);
       handleElif(cond);
     }
@@ -276,19 +324,26 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
       popIfLevel();
     }
     else if (myStrCmp(dir, "define")) {
-      if (!currentActive()) return 0;
-      while (s[i] == ' ' || s[i] == '\t') i++;
+      if (!currentActive()) 
+        return 0;
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
+
       char key[256] = {0};
       size_t ki = 0;
       while (s[i] && s[i] != ' ' && s[i] != '\t') {
-        if (ki + 1 < sizeof(key)) key[ki++] = s[i];
+        if (ki + 1 < sizeof(key)) 
+          key[ki++] = s[i];
         i++;
       }
+
       key[ki] = '\0';
-      while (s[i] == ' ' || s[i] == '\t') i++;
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
       char val[1024] = {0};
       size_t vi = 0;
-      while (s[i] && vi + 1 < sizeof(val)) val[vi++] = s[i++];
+      while (s[i] && vi + 1 < sizeof(val)) 
+        val[vi++] = s[i++];
       val[vi] = '\0';
       if (myStrGetLen(key) > 0) {
         HMadd(hm, key, val);
@@ -296,16 +351,22 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
       }
     }
     else if (myStrCmp(dir, "undef")) {
-      if (!currentActive()) return 0;
-      while (s[i] == ' ' || s[i] == '\t') i++;
+      if (!currentActive()) 
+        return 0;
+
+      while (s[i] == ' ' || s[i] == '\t') 
+        i++;
       char key[256] = {0};
       size_t ki = 0;
       while (s[i] && s[i] != ' ' && s[i] != '\t') {
-        if (ki + 1 < sizeof(key)) key[ki++] = s[i];
+        if (ki + 1 < sizeof(key)) 
+          key[ki++] = s[i];
         i++;
       }
+
       key[ki] = '\0';
-      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) { key[--ki] = '\0'; }
+      while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) 
+        key[--ki] = '\0';
       if (myStrGetLen(key) > 0) {
         HMdelete(hm, key);
         removeDefinedName(key);
@@ -326,7 +387,8 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
       size_t ti = 0;
       size_t j = idx;
       while ((s[j] >= 'a' && s[j] <= 'z') || (s[j] >= 'A' && s[j] <= 'Z') || (s[j] >= '0' && s[j] <= '9') || s[j] == '_') {
-        if (ti + 1 < sizeof(token)) token[ti++] = s[j];
+        if (ti + 1 < sizeof(token)) 
+          token[ti++] = s[j];
         j++;
       }
       token[ti] = '\0';
@@ -344,11 +406,14 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
     }
     else {
       fputc(s[idx], ofp);
-      if (s[idx] != ' ' && s[idx] != '\t') hadContent = 1;
+      if (s[idx] != ' ' && s[idx] != '\t') 
+        hadContent = 1;
       idx++;
     }
   }
-  if (hadContent) fputc('\n', ofp);
+  if (hadContent) 
+    fputc('\n', ofp);
+  
   return 0;
 }
 

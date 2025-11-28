@@ -2,9 +2,8 @@
 
 #include "utils.h"
 #include <complex.h>
-#include <stdlib.h>
 
-myString* myStringInit(unsigned long cap)
+myString* myStringInit(size_t cap)
 {
   myString *out = (myString*)myAllocMemory(sizeof(myString));
   if (!out)
@@ -34,13 +33,13 @@ int MSgetLine(myString *ms, FILE *f)
 {
   char ch;
   char prev = 0;
-  unsigned long len = 0;
+  size_t len = 0;
   int inQuot = 0;
   char qout = 0;
   while (ch = getc(f), ch != EOF && ch != '\n') {
     if (ms->cap < len + 1) {
       char *newStr = NULL;
-      unsigned long newCap = ms->cap * 2;
+      size_t newCap = ms->cap * 2;
       for (; newCap > ms->cap && !newStr; newCap--)
         newStr = (char*)myAllocMemory(sizeof(char) * newCap);
       if (!newStr)
