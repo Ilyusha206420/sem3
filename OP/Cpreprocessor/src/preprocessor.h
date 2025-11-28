@@ -6,5 +6,4 @@
 #define HEADER_FILE_OPENINNG_ERROR -4
 #define STACK_ERROR                -5
 
-
 int processFile(char *input, char *output);

@@ -1,9 +1,11 @@
 #include "preprocessor.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "assets/hashMap.h"
 #include "assets/myString.h"
 #include "assets/stack.h"
+#include "assets/utils.h"
 
 /*
 TODO : 
@@ -30,7 +32,7 @@ int processFile(char *input, char *output)
   
   FileStruct *curFile = fstack->top->f;
   err = 0;
-  while (curFile) {
+  while (curFile = fstack->top->f, curFile) {
     err = MSgetLine(MSbuf, curFile->fp);
     if (err == 1)
       curFile = FStackPop(fstack);
@@ -45,57 +47,12 @@ int processFile(char *input, char *output)
   return 0;
 }
 
+FILE* openFile(char *fileName, char *mode);
+
 int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
 {
   char *chptr = string->str;
-  while (*chptr) {
-    if (*chptr == '#') {
-      chptr += 1;
-      if (myStrStr(chptr, "include ")) {
-        while (*chptr && *chptr != ' ') chptr++;
-        while (*chptr && *chptr == ' ') chptr++;
-        if (*chptr == '<') {
-          
-        }
-
-        else if (*chptr == '"') {
-          
-        }
-
-        else 
-          return HEADER_FILE_OPENINNG_ERROR;
-      }
-        
-      else if (myStrStr(chptr, "define ")) {
-        while (*chptr++ != ' ');
-        while (*chptr++ == ' ');
-
-      }
-
-      else if (myStrStr(chptr, "undef ")) {
-        while (*chptr++ != ' ');
-        while (*chptr++ == ' ');
-      }
-
-      else if (myStrStr(chptr, "if ")) {
-        while (*chptr++ != ' ');
-        while (*chptr++ == ' ');
-      }
-
-      else if (myStrStr(chptr, "ifdef ")) {
-        while (*chptr++ != ' ');
-        while (*chptr++ == ' ');
-      }
-
-      else if (myStrStr(chptr, "ifndef ")) {
-        while (*chptr++ != ' ');
-        while (*chptr++ == ' ');
-      }
-    }
-    else 
-      fputc(*chptr++, ofp);
-  }
-  fputc('\n', ofp);
+  
   return 0;
 }
 
