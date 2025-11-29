@@ -1,30 +1,34 @@
-// stress104.c - many small defines and conditionals accumulating state
-#define B0 0
-#define B1 1
-#define B2 2
-#define B3 3
-#define B4 4
+// stress105.c - large numeric constants and comparisons, nested elifs
+#define N1 1000
+#define N2 500
+#define N3 250
 
-int acc = 0;
-#if defined(B0)
-  acc += B0;
-#endif
-#if defined(B1)
-  acc += B1;
-#endif
-#if defined(B2)
-  acc += B2;
-#endif
-#if defined(B3)
-  acc += B3;
-#endif
-#if defined(B4)
-  acc += B4;
-#endif
-
-// check accumulation
-#if acc == 10
-  int acc_ok = 1;
+#if (N1 - N2) > (N3 * 2)
+  int big = 1;
+#elif (N2 + N3) == 750
+  int big = 2;
 #else
-  int acc_ok = 0;
+  int big = 0;
+#endif
+
+// interplay with redefines and modulo
+#undef N3
+#define N3 333
+#if ( (N1 + N2 + N3) % 3 ) == 0
+  int big2 = 1;
+#else
+  int big2 = 0;
+#endif
+
+// many elifs to push parser
+#if 0
+  int many = 0;
+#elif 0
+  int many = 1;
+#elif 0
+  int many = 2;
+#elif 0
+  int many = 3;
+#elif 1
+  int many = 4;
 #endif
