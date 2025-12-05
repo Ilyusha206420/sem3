@@ -26,7 +26,8 @@ class Geometry
   public:
     Geometry(std::initializer_list<float> inst, std::initializer_list<std::initializer_list<float>> points);
     void connect(size_t a, size_t b);
-    
+    void AddPoint(std::initializer_list<float> point);
+
     std::vector<point> getPoints();
     std::vector<edge> getEdges() { return std::vector<edge> (this->_edges); };
 

@@ -91,3 +91,7 @@ void Geometry::scale(float ds)
   {0, 0, ds, 0},
  {0, 0 ,0, 1}}) * point.mat;
 }
+
+void Geometry::AddPoint(std::initializer_list<float> p) {
+  this->_points.push_back(point{p});
+}
