@@ -8,9 +8,7 @@
 
 int main() 
 {
-  float cosDr = std::cos(0.05);
-  float sinDr = std::sin(0.05);
-  myWindow wind(600, 400, "Lab3Var18");
+  myWindow wind(600, 400, "Lab4Var18");
   Geometry geometry({300, 0, 0}, 
     {{-40, -40, -40}, 
     {40, -40, -40},
@@ -27,7 +25,7 @@ int main()
   }
   for (int i = 4; i < 7; i++)
     geometry.connect(i, i + 1);
-  
+
   geometry.connect(0, 3);
   geometry.connect(3, 7);
   geometry.connect(7, 4);
