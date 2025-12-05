@@ -31,5 +31,8 @@ class Geometry
     std::vector<edge> getEdges() { return std::vector<edge> (this->_edges); };
 
     void move(float dx, float dy, float dz);
-    void rotate(float dax, float day, float daz);
+    void rotateX(float dax);
+    void rotateY(float day);
+    void rotateZ(float daz);
+    void scale(float ds);
 };

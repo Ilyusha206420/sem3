@@ -52,7 +52,7 @@ void Geometry::move(float dx, float dy, float dz)
     {0}});
 }
 
-void Geometry::rotate(float dax, float day, float daz)
+void Geometry::rotateX(float dax)
 {
   for (auto &point : this->_points)
     point.mat = Matrix(4, 4, {
@@ -60,4 +60,34 @@ void Geometry::rotate(float dax, float day, float daz)
   {0, std::cos(dax), std::sin(dax), 0},
   {0, -std::sin(dax), std::cos(dax), 0},
   {0, 0, 0, 1}}) * point.mat;
+}
+
+void Geometry::rotateY(float day)
+{
+  for (auto &point : this->_points)
+    point.mat = Matrix(4, 4, {
+  {std::cos(day), 0, std::sin(day), 0},
+  {0, 1, 0, 0},
+  {-std::sin(day), 0, std::cos(day), 0},
+  {0, 0, 0, 1}}) * point.mat;
+}
+
+void Geometry::rotateZ(float daz)
+{
+  for (auto &point : this->_points)
+    point.mat = Matrix(4, 4, {
+  {std::cos(daz), -std::sin(daz), 0, 0},
+  {std::sin(daz), std::cos(daz), 0, 0},
+  {0, 0, 1, 0},
+  {0, 0, 0, 1}}) * point.mat;
+}
+
+void Geometry::scale(float ds)
+{
+  for (auto &point : this->_points)
+    point.mat = Matrix(4, 4, {
+  {ds, 0, 0, 0},
+  {0, ds, 0, 0},
+  {0, 0, ds, 0},
+ {0, 0 ,0, 1}}) * point.mat;
 }

@@ -20,18 +20,16 @@ int main()
     {40, 40, -40},
     {40, 40, 40},
     {-40, 40, 40}});
-
-  geometry.connect(0, 1);
-  geometry.connect(1, 2);
-  geometry.connect(2, 3);
+  
+  for (int i = 0; i < 3; i++) {
+    geometry.connect(i, i + 1);
+    geometry.connect(i, i + 4);
+  }
+  for (int i = 4; i < 7; i++)
+    geometry.connect(i, i + 1);
+  
   geometry.connect(0, 3);
-  geometry.connect(0, 4);
-  geometry.connect(1, 5);
-  geometry.connect(2, 6);
   geometry.connect(3, 7);
-  geometry.connect(4, 5);
-  geometry.connect(5, 6);
-  geometry.connect(6, 7);
   geometry.connect(7, 4);
 
   SDL_Event event;
@@ -44,12 +42,15 @@ int main()
     if (keys[SDL_SCANCODE_RALT])   geometry.move(0, 0, 5);
     if (keys[SDL_SCANCODE_RSHIFT]) geometry.move(0, 0, -5);
 
-    if (keys[SDL_SCANCODE_Q]) geometry.rotate(0.05, 0, 0);
-    if (keys[SDL_SCANCODE_A]) geometry.rotate(-0.05, 0, 0);
-    if (keys[SDL_SCANCODE_W]) ;
-    if (keys[SDL_SCANCODE_S]) ;
-    if (keys[SDL_SCANCODE_E]) ;
-    if (keys[SDL_SCANCODE_D]) ;
+    if (keys[SDL_SCANCODE_Q]) geometry.rotateX(0.05);
+    if (keys[SDL_SCANCODE_A]) geometry.rotateX(-0.05);
+    if (keys[SDL_SCANCODE_W]) geometry.rotateY(0.05);
+    if (keys[SDL_SCANCODE_S]) geometry.rotateY(-0.05);
+    if (keys[SDL_SCANCODE_E]) geometry.rotateZ(0.05);
+    if (keys[SDL_SCANCODE_D]) geometry.rotateZ(-0.05);
+
+    if (keys[SDL_SCANCODE_Z]) geometry.scale(0.9);
+    if (keys[SDL_SCANCODE_X]) geometry.scale(1.1);
 
     wind.clear();
     wind.drawGeometry(geometry, 0, 255, 0, 255);
