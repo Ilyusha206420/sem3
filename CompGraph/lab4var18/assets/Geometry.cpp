@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <vector>
+#include <cmath>
 
 point::point(std::initializer_list<float> coords):
 mat(Matrix(1, coords.size() + 1)) 
@@ -53,5 +54,10 @@ void Geometry::move(float dx, float dy, float dz)
 
 void Geometry::rotate(float dax, float day, float daz)
 {
-  
+  for (auto &point : this->_points)
+    point.mat = Matrix(4, 4, {
+  {1, 0, 0, 0},
+  {0, std::cos(dax), std::sin(dax), 0},
+  {0, -std::sin(dax), std::cos(dax), 0},
+  {0, 0, 0, 1}}) * point.mat;
 }

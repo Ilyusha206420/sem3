@@ -32,5 +32,4 @@ class Geometry
 
     void move(float dx, float dy, float dz);
     void rotate(float dax, float day, float daz);
-
 };

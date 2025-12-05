@@ -12,14 +12,14 @@ int main()
   float sinDr = std::sin(0.05);
   myWindow wind(600, 400, "Lab3Var18");
   Geometry geometry({300, 0, 0}, 
-    {{0, 0, 0}, 
-    {80, 0, 0},
-    {80, 0, 80},
-    {0, 0, 80},
-    {0, 80, 0}, 
-    {80, 80, 0},
-    {80, 80, 80},
-    {0, 80, 80}});
+    {{-40, -40, -40}, 
+    {40, -40, -40},
+    {40, -40, 40},
+    {-40, -40, 40},
+    {-40, 40, -40}, 
+    {40, 40, -40},
+    {40, 40, 40},
+    {-40, 40, 40}});
 
   geometry.connect(0, 1);
   geometry.connect(1, 2);
@@ -44,8 +44,12 @@ int main()
     if (keys[SDL_SCANCODE_RALT])   geometry.move(0, 0, 5);
     if (keys[SDL_SCANCODE_RSHIFT]) geometry.move(0, 0, -5);
 
-    
-
+    if (keys[SDL_SCANCODE_Q]) geometry.rotate(0.05, 0, 0);
+    if (keys[SDL_SCANCODE_A]) geometry.rotate(-0.05, 0, 0);
+    if (keys[SDL_SCANCODE_W]) ;
+    if (keys[SDL_SCANCODE_S]) ;
+    if (keys[SDL_SCANCODE_E]) ;
+    if (keys[SDL_SCANCODE_D]) ;
 
     wind.clear();
     wind.drawGeometry(geometry, 0, 255, 0, 255);
