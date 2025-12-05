@@ -24,8 +24,8 @@ std::vector<point> Geometry::getPoints() {
     for(int i = 1; i < _points.size(); i++) {
         out.push_back(point(inst.mat + _points[i].mat));
     }
-    for(int i = 0; i < out.size(); i++)
-        out[i].mat[out[i].mat.getY() - 1][0] -= 1;
+    // for(int i = 0; i < out.size(); i++)
+    //     out[i].mat[out[i].mat.getY() - 1][0] -= 1;
     return out;
 }
 

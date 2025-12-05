@@ -51,7 +51,7 @@ void Geometry::move(float dx, float dy, float dz)
     {0}});
 }
 
-// void Geometry::transform(Matrix m) {
-//     for(int i = 1; i < _points.size(); i++)
-//         this->_points[i].mat = m * this->_points[i].mat;
-// }
+void Geometry::rotate(float dax, float day, float daz)
+{
+  
+}
