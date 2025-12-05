@@ -42,15 +42,14 @@ std::vector<point> Geometry::getPoints()
   return out;
 }
 
-std::vector<edge> Geometry::getEdges()
+void Geometry::move(float dx, float dy, float dz) 
 {
-  return std::vector<edge> (this->_edges);
+  this->_inst.mat += Matrix(1, 4, {
+    {dx},
+    {dy},
+    {dz},
+    {0}});
 }
-
-// void Geometry::move(const Matrix& m) {
-//     for(auto& p : _points)
-//         p.mat += m;
-// }
 
 // void Geometry::transform(Matrix m) {
 //     for(int i = 1; i < _points.size(); i++)

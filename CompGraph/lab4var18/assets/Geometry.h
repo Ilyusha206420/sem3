@@ -28,8 +28,8 @@ class Geometry
     void connect(size_t a, size_t b);
     
     std::vector<point> getPoints();
-    std::vector<edge> getEdges();
+    std::vector<edge> getEdges() { return std::vector<edge> (this->_edges); };
 
-    // void move(const Matrix& m);
+    void move(float dx, float dy, float dz);
     // void transform(Matrix m);
 };
