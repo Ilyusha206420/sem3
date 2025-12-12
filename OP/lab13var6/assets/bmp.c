@@ -24,3 +24,8 @@ bmpInfo* readInfo(FILE *fp)
 
   return out;
 }
+
+void cutBmp(bmpHeader *fileHeader, bmpInfo *fileInfo, FILE *fp)
+{
+
+}
