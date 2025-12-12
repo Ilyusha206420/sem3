@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   bmpHeader *head = readHeader(fp);
   bmpInfo *info = readInfo(fp);
   char ***img = (char***)malloc(sizeof(char**) * info->imgHeight);
-  for (int i = 0; i < info->imgHeight; i++) {
+  for (int i = info->imgHeight; i >= 0; --i) {
     img[i] = (char**)malloc(sizeof(char*) * info->imgWidth);
     for (int n = 0; n < info->imgWidth; n++) {
       img[i][n] = (char*)malloc(sizeof(char) * 3);
