@@ -9,7 +9,7 @@
 #define ERROR_OPEN_FILE   -5
 
 #define DEFAULT_SEGMENT_COUNT 4
-#define DEFAULT_CUT_TYPE      0
+#define DEFAULT_CUT_TYPE      3
 
 #define VERTICAL_CUT   1
 #define HORIZONTAL_CUT 2

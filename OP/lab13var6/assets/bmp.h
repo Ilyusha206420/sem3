@@ -33,3 +33,5 @@ typedef struct
 
 bmpHeader* readHeader(FILE *fp);
 bmpInfo* readInfo(FILE *fp);
+
+void cutBmp(bmpHeader *fileHeader, bmpInfo *fileInfo, char ***img, int cutType, int segments);

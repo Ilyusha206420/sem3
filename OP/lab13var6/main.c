@@ -1,6 +1,7 @@
 #include "assets/parser.h"
 #include "assets/bmp.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
@@ -8,7 +9,6 @@ int main(int argc, char **argv)
     printf("\033[91mError! Wrong argument\n\033[39m");
     return -1;
   }
-
   FILE *fp = NULL;
   int segments = DEFAULT_SEGMENT_COUNT;
   int cutType = DEFAULT_CUT_TYPE;
@@ -24,16 +24,22 @@ int main(int argc, char **argv)
 
     case ERROR_CONF_SYNTAX:
       printf("\033[91mError! Wrong syntax in config file!\n\033[39m");
+      if (fp) 
+        fclose(fp);
       return -1;
     break;
 
     case ERROR_CUT_TYPE:
       printf("\033[91mError! Unknown cut type!\n\033[39m");
+      if (fp) 
+        fclose(fp);
       return -1;
     break;
 
     case ERROR_FILE_COUNT:
       printf("\033[91mError! You must add only one file in config!\n\033[39m");
+      if (fp) 
+        fclose(fp);
       return -1;
     break;
 
@@ -44,6 +50,8 @@ int main(int argc, char **argv)
 
     default:
       printf("\033[91mUnexpected error : %d!\n\033[39m", err);
+      if (fp) 
+        fclose(fp);
       return -1;  
     break;
   }
@@ -54,10 +62,17 @@ int main(int argc, char **argv)
 
   bmpHeader *head = readHeader(fp);
   bmpInfo *info = readInfo(fp);
+  char ***img = (char***)malloc(sizeof(char**) * info->imgHeight);
+  for (int i = 0; i < info->imgHeight; i++) {
+    img[i] = (char**)malloc(sizeof(char*) * info->imgWidth);
+    for (int n = 0; n < info->imgWidth; n++) {
+      img[i][n] = (char*)malloc(sizeof(char) * 3);
+      fread(img[i][n], 3, 1, fp);
+    }
+  }
+  fclose(fp);
 
-  printf("%d\n", info->infoSize);
-  printf("%u\n", info->imgWidth);
-  printf("%u\n", info->imgHeight);
+  cutBmp(head, info, img, cutType, segments);
 
   return 0;
 }
