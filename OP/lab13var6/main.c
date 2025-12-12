@@ -1,4 +1,5 @@
 #include "assets/parser.h"
+#include "assets/bmp.h"
 #include <stdio.h>
 
 int main(int argc, char **argv)
@@ -46,6 +47,17 @@ int main(int argc, char **argv)
       return -1;  
     break;
   }
+  if (!fp) {
+    printf("\033[91mError! There is not filename in config file\n\033[39m");
+    return -1;
+  }
+
+  bmpHeader *head = readHeader(fp);
+  bmpInfo *info = readInfo(fp);
+
+  printf("%d\n", info->infoSize);
+  printf("%u\n", info->imgWidth);
+  printf("%u\n", info->imgHeight);
 
   return 0;
 }
