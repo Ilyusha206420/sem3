@@ -1,0 +1,3 @@
+filename: Airplane.bmp
+segments: 4
+type: g
