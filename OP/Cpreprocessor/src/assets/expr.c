@@ -1,7 +1,15 @@
 #include "expr.h"
+
 #include "myString.h"
 #include <stdio.h>
 
+/*
+описанные функции интерпретации символьных
+последовательностей как последовательностей операций
+вызывают друг друг в зависимости от приоритета их выполнения
+*/
+
+// функция пропуска пробелов
 char* skipws(char *p)
 {
   while (*p == ' ' || *p == '\t') p++;
@@ -10,6 +18,7 @@ char* skipws(char *p)
 
 int parse_primary(char **sp, HashMap *hm);
 
+// функция парсинга чисел
 long parse_number(char **sp)
 {
   char *p = *sp;
@@ -32,39 +41,43 @@ long parse_number(char **sp)
   return v * sign;
 }
 
+// рукурсивная функция обработки унарных операторов
 long parse_unary(char **sp, HashMap *hm)
 {
   char *p = skipws(*sp);
   if (*p == '!') { 
     p++; 
-    long v = parse_unary(&p, hm); 
+    long v = parse_unary(&p, hm); // рекурсивно обрабатываем унарные операторы после '!'
     *sp = p; 
     return !v; 
   }
   
   if (*p == '+') { 
     p++; 
-    long v = parse_unary(&p, hm); 
+    long v = parse_unary(&p, hm); // рекурсивно обрабатываем унарные операторы после '+'
     *sp = p; 
     return v; 
   }
 
   if (*p == '-') { 
     p++; 
-    long v = parse_unary(&p, hm); 
+    long v = parse_unary(&p, hm); // рекурсивно обрабатываем унарные операторы после '-'
     *sp = p; 
     return -v; 
   }
   
+  // если не унарный оператор - обрабатываем как первичное выражение
   return parse_primary(sp, hm);
 }
 
+// функция обработки умножения и деления
 long parse_mul(char **sp, HashMap *hm)
 {
-  long v = parse_unary(sp, hm);
-  char *p = skipws(*sp);
-  while (*p == '*' || *p == '/' || *p == '%') {
-    char op = *p++; long rhs = parse_unary(&p, hm);
+  long v = parse_unary(sp, hm); //v - первое число
+  char *p = skipws(*sp); // пропускаем пробелы
+  while (*p == '*' || *p == '/' || *p == '%') { 
+    char op = *p++; // op - оператор
+    long rhs = parse_unary(&p, hm); // rhs - число, либо выражение после оператора
     if (op == '*') 
       v = v * rhs;
     
@@ -76,15 +89,18 @@ long parse_mul(char **sp, HashMap *hm)
     
     p = skipws(p);
   }
-  *sp = p; return v;
+  *sp = p; 
+  return v;
 }
 
+// функция обработки сложения и вычитания
 long parse_add(char **sp, HashMap *hm)
 {
-  long v = parse_mul(sp, hm);
-  char *p = skipws(*sp);
+  long v = parse_mul(sp, hm); // v - первое число
+  char *p = skipws(*sp); 
   while (*p == '+' || *p == '-') {
-    char op = *p++; long rhs = parse_mul(&p, hm);
+    char op = *p++; // op - оператор
+    long rhs = parse_mul(&p, hm); //rhs - число, либо выражение после оператора
     if (op == '+') 
       v = v + rhs; 
     
@@ -95,32 +111,33 @@ long parse_add(char **sp, HashMap *hm)
   *sp = p; return v;
 }
 
+// функция обработки операторов сравнения
 long parse_rel(char **sp, HashMap *hm)
 {
-  long v = parse_add(sp, hm);
+  long v = parse_add(sp, hm); // v - первое число
   char *p = skipws(*sp);
   for (;;) {
     if (p[0] == '<' && p[1] == '=') { 
       char *q = p + 2; 
-      long rhs = parse_add(&q, hm); 
+      long rhs = parse_add(&q, hm); // число, либо выражение после оператора
       v = v <= rhs; 
       p = skipws(q); 
     }
     else if (p[0] == '>' && p[1] == '=') { 
       char *q = p + 2; 
-      long rhs = parse_add(&q, hm); 
+      long rhs = parse_add(&q, hm); // число, либо выражение после оператора
       v = v >= rhs; 
       p = skipws(q); 
     }
     else if (p[0] == '<') { 
       char *q = p + 1; 
-      long rhs = parse_add(&q, hm); 
+      long rhs = parse_add(&q, hm); // число, либо выражение после оператора
       v = v < rhs; 
       p = skipws(q); 
     }
     else if (p[0] == '>') { 
       char *q = p + 1; 
-      long rhs = parse_add(&q, hm); 
+      long rhs = parse_add(&q, hm); // число, либо выражение после оператора
       v = v > rhs; 
       p = skipws(q); 
     }
@@ -130,6 +147,7 @@ long parse_rel(char **sp, HashMap *hm)
   return v;
 }
 
+// функция обработки операторов равенства и неравенства
 long parse_eq(char **sp, HashMap *hm)
 {
   long v = parse_rel(sp, hm);
@@ -153,6 +171,7 @@ long parse_eq(char **sp, HashMap *hm)
   return v;
 }
 
+// функция обработки оператора логического И
 long parse_and(char **sp, HashMap *hm)
 {
   long v = parse_eq(sp, hm);
@@ -167,6 +186,7 @@ long parse_and(char **sp, HashMap *hm)
   return v;
 }
 
+// функция обработки оператора логического ИЛИ
 long parse_or(char **sp, HashMap *hm)
 {
   long v = parse_and(sp, hm);
@@ -181,16 +201,22 @@ long parse_or(char **sp, HashMap *hm)
   return v;
 }
 
+/* 
+функция обработки макроса defined
+sp - указатель на указатель на текущую позицию в строке
+outname - буфер для записи найденного имени
+outcap - вместимость буфера для записи найденного имени
+*/
 int parse_defined_name(char **sp, char *outname, size_t outcap)
 {
   char *p = skipws(*sp);
-  if (!myStrStr((char*)p, "defined")) 
+  if (!myStrStr((char*)p, "defined")) //если не "defined", возврат 0
     return 0;
 
   p += 7;
   p = skipws(p);
   if (*p == '(') {
-    p++; p = skipws(p);
+    p++; p = skipws(p); 
     size_t i = 0;
     while (*p && *p != ')' && i + 1 < outcap) 
       outname[i++] = *p++;
@@ -199,7 +225,7 @@ int parse_defined_name(char **sp, char *outname, size_t outcap)
     if (*p == ')') 
       p++;
     *sp = p; 
-    return 1;
+    return 1; // возвращает 1, записав имя макроса в буфер outname
   }
   size_t i = 0;
   while ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_' || (*p >= '0' && *p <= '9')) { 
@@ -209,13 +235,14 @@ int parse_defined_name(char **sp, char *outname, size_t outcap)
   }
   outname[i] = '\0';
   *sp = p; 
-  return i > 0;
+  return i > 0; // возвращает 1 если было найдено и записано в имя макроса 
 }
 
+// обработка первичных значений
 int parse_primary(char **sp, HashMap *hm)
 {
   char *p = skipws(*sp);
-  if (*p == '(') { 
+  if (*p == '(') { // если скобки, наивысший приоритет
     p++; 
     int v = parse_or(&p, hm); 
     p = skipws(p); 
@@ -224,18 +251,18 @@ int parse_primary(char **sp, HashMap *hm)
     *sp = p; 
     return v; 
   }
-  if (myStrStr((char*)p, "defined")) {
-    char name[256] = {0};
-    if (parse_defined_name(&p, name, sizeof(name))) {
-      int res = hasDefinedName(name);
-      if (!res && hm) {
+  if (myStrStr((char*)p, "defined")) { // если "defined"
+    char name[256] = {0}; // буфер для записи имени макроса
+    if (parse_defined_name(&p, name, sizeof(name))) { // извлекаем имя
+      int res = hasDefinedName(name); // проверка, определено ли имя 
+      if (!res && hm) { // если не определено, ищем в хэш таблице
         char valbuf[256] = {0}; 
       char *valptr = valbuf;
-        if (HMget(hm, name, &valptr)) 
+        if (HMget(hm, name, &valptr)) // если нашли, результат - 1
           res = 1;
       }
       *sp = p; 
-      return res;
+      return res; // возвращаем результат
     }
   }
   if ((*p >= '0' && *p <= '9') || *p == '+' || *p == '-') {
