@@ -14,105 +14,22 @@ int *branchTakenStack = NULL;
 size_t ifStackTop = 0;
 size_t ifStackCap = 0;
 
-int ensureIfStackCapacity()
-{
-  if (ifStackTop + 1 < ifStackCap)
-    return 0;
-  size_t newCap = ifStackCap ? ifStackCap * 2 : 16;
-  int *newActive = (int*)myAllocMemory(sizeof(int) * newCap);
-  int *newTaken = (int*)myAllocMemory(sizeof(int) * newCap);
-  if (!newActive || !newTaken) {
-    free(newActive);
-    free(newTaken);
-    return -1;
-  }
-  for (size_t i = 0; i < ifStackTop; i++) {
-    newActive[i] = ifActiveStack ? ifActiveStack[i] : 0;
-    newTaken[i] = branchTakenStack ? branchTakenStack[i] : 0;
-  }
-  free(ifActiveStack);
-  free(branchTakenStack);
-  ifActiveStack = newActive;
-  branchTakenStack = newTaken;
-  ifStackCap = newCap;
-  return 0;
-}
-
-int currentParentActive()
-{
-  if (ifStackTop == 0) 
-    return 1;
-  return ifActiveStack[ifStackTop - 1];
-}
-
-int currentActive()
-{
-  if (ifStackTop == 0) 
-    return 1;
-  return ifActiveStack[ifStackTop - 1];
-}
-
-void pushIfLevel(int condResult)
-{
-  if (ensureIfStackCapacity() != 0)
-    return;
-  int parent = currentParentActive();
-  int active = parent && condResult;
-  ifActiveStack[ifStackTop] = active;
-  branchTakenStack[ifStackTop] = (parent && condResult) ? 1 : 0;
-  ifStackTop++;
-}
-
-void popIfLevel()
-{
-  if (ifStackTop == 0) 
-    return;
-  ifStackTop--;
-}
-
-void handleElse()
-{
-  if (ifStackTop == 0) 
-    return;
-  int parent = (ifStackTop >= 2) ? ifActiveStack[ifStackTop - 2] : 1;
-  int taken = branchTakenStack[ifStackTop - 1];
-  int newActive = parent && !taken;
-  ifActiveStack[ifStackTop - 1] = newActive;
-  branchTakenStack[ifStackTop - 1] = taken || newActive;
-}
-
-void handleElif(int condResult)
-{
-  if (ifStackTop == 0) 
-    return;
-  
-  int parent = (ifStackTop >= 2) ? ifActiveStack[ifStackTop - 2] : 1;
-  int taken = branchTakenStack[ifStackTop - 1];
-  if (!parent || taken) {
-    ifActiveStack[ifStackTop - 1] = 0;
-    return;
-  }
-  int active = condResult ? 1 : 0;
-  ifActiveStack[ifStackTop - 1] = active;
-  if (active) 
-    branchTakenStack[ifStackTop - 1] = 1;
-}
-
 int prepairVars(FILE **ifp, char *inpName, FILE **ofp, char *outName, FileStack **fstack, HashMap **hm, myString **ms);
 int closeFilesWithError(FILE *fp1, FILE *fp2, int errCode);
 int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs);
 
+// основная функция обработки файла
 int processFile(char *input, char *output)
 {
-  FILE *ifp = NULL;
-  FILE *ofp = NULL;
-  FileStack *fstack = NULL;
-  HashMap *hm = NULL;
-  myString *MSbuf = NULL;
+  FILE *ifp = NULL; // указатель на входной файл
+  FILE *ofp = NULL; // указатель на результрующий файл
+  FileStack *fstack = NULL; // указатель на структуру, хранящую стэк используемых файлов
+  HashMap *hm = NULL; // указатель на структуру хэш таблицы
+  myString *MSbuf = NULL; // указатель на структуру, хранящую строку, прочтенную из файла
 
-  int err = prepairVars(&ifp, input, &ofp, output, &fstack, &hm, &MSbuf);
-  if (err)
-    return err;
+  int err = prepairVars(&ifp, input, &ofp, output, &fstack, &hm, &MSbuf); // инициализация переменных
+  if (err) 
+    return err; // если возникла ошибка, возврат кода ошибки
   
   FileStruct *curFile = NULL;
   err = 0;
@@ -125,22 +42,25 @@ int processFile(char *input, char *output)
       FStackPop(fstack);
   }
 
-  fclose(ifp);
-  fclose(ofp);
-
-  return 0;
+  return closeFilesWithError(ifp, ofp, 0);
 }
 
+int currentActive();
 FILE* openFile(char *fileName, char *mode);
+void pushIfLevel(int condResult);
+void handleElse();
+void handleElif(int condResult);
+void popIfLevel();
 
+// функция обработки строки
 int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
 {
   if (!string || !string->str)
-    return 0;
+    return 0; // если не передана строка, возвращает 0
 
   char *s = string->str;
   size_t i = 0;
-  while (s[i] == ' ' || s[i] == '\t') 
+  while (s[i] == ' ' || s[i] == '\t') // пропуск пробелов
     i++;
 
   if (s[i] == '#') {
@@ -349,6 +269,90 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
     fputc('\n', ofp);
   
   return 0;
+}
+
+int ensureIfStackCapacity()
+{
+  if (ifStackTop + 1 < ifStackCap)
+    return 0;
+  size_t newCap = ifStackCap ? ifStackCap * 2 : 16;
+  int *newActive = (int*)myAllocMemory(sizeof(int) * newCap);
+  int *newTaken = (int*)myAllocMemory(sizeof(int) * newCap);
+  if (!newActive || !newTaken) {
+    free(newActive);
+    free(newTaken);
+    return -1;
+  }
+  for (size_t i = 0; i < ifStackTop; i++) {
+    newActive[i] = ifActiveStack ? ifActiveStack[i] : 0;
+    newTaken[i] = branchTakenStack ? branchTakenStack[i] : 0;
+  }
+  free(ifActiveStack);
+  free(branchTakenStack);
+  ifActiveStack = newActive;
+  branchTakenStack = newTaken;
+  ifStackCap = newCap;
+  return 0;
+}
+
+int currentParentActive()
+{
+  if (ifStackTop == 0) 
+    return 1;
+  return ifActiveStack[ifStackTop - 1];
+}
+
+int currentActive()
+{
+  if (ifStackTop == 0) 
+    return 1;
+  return ifActiveStack[ifStackTop - 1];
+}
+
+void pushIfLevel(int condResult)
+{
+  if (ensureIfStackCapacity() != 0)
+    return;
+  int parent = currentParentActive();
+  int active = parent && condResult;
+  ifActiveStack[ifStackTop] = active;
+  branchTakenStack[ifStackTop] = (parent && condResult) ? 1 : 0;
+  ifStackTop++;
+}
+
+void popIfLevel()
+{
+  if (ifStackTop == 0) 
+    return;
+  ifStackTop--;
+}
+
+void handleElse()
+{
+  if (ifStackTop == 0) 
+    return;
+  int parent = (ifStackTop >= 2) ? ifActiveStack[ifStackTop - 2] : 1;
+  int taken = branchTakenStack[ifStackTop - 1];
+  int newActive = parent && !taken;
+  ifActiveStack[ifStackTop - 1] = newActive;
+  branchTakenStack[ifStackTop - 1] = taken || newActive;
+}
+
+void handleElif(int condResult)
+{
+  if (ifStackTop == 0) 
+    return;
+  
+  int parent = (ifStackTop >= 2) ? ifActiveStack[ifStackTop - 2] : 1;
+  int taken = branchTakenStack[ifStackTop - 1];
+  if (!parent || taken) {
+    ifActiveStack[ifStackTop - 1] = 0;
+    return;
+  }
+  int active = condResult ? 1 : 0;
+  ifActiveStack[ifStackTop - 1] = active;
+  if (active) 
+    branchTakenStack[ifStackTop - 1] = 1;
 }
 
 FILE* openFile(char *fileName, char *mode)
