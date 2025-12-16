@@ -18,8 +18,10 @@ long parse_number(char **sp)
   if (*p == '+')  
     p++;
 
-  else if (*p == '-') 
-    sign = -1; p++;
+  else if (*p == '-') {
+    sign = -1; 
+    p++;
+  }
 
   long v = 0;
   while (*p >= '0' && *p <= '9') { 
