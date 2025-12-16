@@ -1,13 +1,20 @@
-    int s0 = 10;
-        int s1 = 11;
-            int s2 = 12;
-  int valA = 42;
-  int valB = (21*2);
-  int chain = 2;
-  int mix = 1;
-  int seq0 = 0;
-  int seq1 = 1;
-  int seq2 = 2;
-  int seq3 = 3;
-  int seq4 = 4;
-  int final_ok = 0;
+#if 1
+  #if 1
+    #if 1
+      #if 1
+        #if 1
+          #if 1
+            #if 1
+              #if 1
+                #if 1
+                  int r = 10;
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+      int r2 = 0;
+    #endif
+  #endif
+#endif
