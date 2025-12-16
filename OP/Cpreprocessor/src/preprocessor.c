@@ -14,58 +14,6 @@ int *branchTakenStack = NULL;
 size_t ifStackTop = 0;
 size_t ifStackCap = 0;
 
-char **definedNames = NULL;
-size_t defCount = 0;
-size_t defCap = 0;
-
-int addDefinedName(const char *name)
-{
-  if (!name) return -1;
-  if (defCount + 1 >= defCap) {
-    size_t nc = defCap ? defCap * 2 : 16;
-    char **nb = (char**)myAllocMemory(sizeof(char*) * nc);
-    if (!nb) 
-      return -1;
-    for (size_t i = 0; i < defCount; ++i) 
-      nb[i] = definedNames[i];
-    free(definedNames);
-    definedNames = nb;
-    defCap = nc;
-  }
-  size_t len = myStrGetLen((char*)name);
-  char *s = (char*)myAllocMemory(len + 1);
-  if (!s) 
-    return -1;
-  myStrCpy((char*)name, &s);
-  definedNames[defCount++] = s;
-  return 0;
-}
-
-void removeDefinedName(const char *name)
-{
-  if (!name || defCount == 0) 
-    return;
-
-  for (size_t i = 0; i < defCount; ++i) {
-    if (myStrCmp(definedNames[i], (char*)name)) {
-      free(definedNames[i]);
-      definedNames[i] = definedNames[defCount - 1];
-      defCount--;
-      return;
-    }
-  }
-}
-
-int hasDefinedName(char *name)
-{
-  if (!name) 
-    return 0;
-  for (size_t i = 0; i < defCount; ++i) 
-    if (myStrCmp(definedNames[i], (char*)name)) 
-      return 1;
-  return 0;
-}
-
 int ensureIfStackCapacity()
 {
   if (ifStackTop + 1 < ifStackCap)
@@ -267,14 +215,9 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
         key[--ki] = '\0'; 
 
       int cond = 0;
-      if (myStrGetLen(key) > 0) {
-        if (hasDefinedName(key)) 
-          cond = 1;
-        else if (hm) { 
-          char *tmp = NULL; 
-          cond = HMget(hm, key, &tmp); 
-        }
-      }
+      if (myStrGetLen(key) > 0)
+          cond = HMget(hm, key, NULL); 
+
       pushIfLevel(cond);
     }
     else if (myStrCmp(dir, "ifndef")) {
@@ -294,14 +237,9 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
         key[--ki] = '\0'; 
 
       int cond = 1;
-      if (myStrGetLen(key) > 0) {
-        if (hasDefinedName(key)) 
-          cond = 0;
-        else if (hm) { 
-          char *tmp = NULL; 
-          cond = !HMget(hm, key, &tmp); 
-        }
-      }
+      if (myStrGetLen(key) > 0)
+        cond = !HMget(hm, key, NULL); 
+
       pushIfLevel(cond);
     }
 
@@ -345,10 +283,8 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
       while (s[i] && vi + 1 < sizeof(val)) 
         val[vi++] = s[i++];
       val[vi] = '\0';
-      if (myStrGetLen(key) > 0) {
+      if (myStrGetLen(key) > 0)
         HMadd(hm, key, val);
-        addDefinedName(key);
-      }
     }
     else if (myStrCmp(dir, "undef")) {
       if (!currentActive()) 
@@ -367,10 +303,8 @@ int processLine(myString *string, FILE *ofp, HashMap *hm, FileStack *fs)
       key[ki] = '\0';
       while (ki > 0 && (key[ki-1] == '\r' || key[ki-1] == ' ' || key[ki-1] == '\t')) 
         key[--ki] = '\0';
-      if (myStrGetLen(key) > 0) {
+      if (myStrGetLen(key) > 0) 
         HMdelete(hm, key);
-        removeDefinedName(key);
-      }
     }
     return 0;
   }

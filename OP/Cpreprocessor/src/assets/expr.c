@@ -1,5 +1,6 @@
 #include "expr.h"
 
+#include "hashMap.h"
 #include "myString.h"
 #include <stdio.h>
 
@@ -254,38 +255,34 @@ int parse_primary(char **sp, HashMap *hm)
   if (myStrStr((char*)p, "defined")) { // если "defined"
     char name[256] = {0}; // буфер для записи имени макроса
     if (parse_defined_name(&p, name, sizeof(name))) { // извлекаем имя
-      int res = hasDefinedName(name); // проверка, определено ли имя 
-      if (!res && hm) { // если не определено, ищем в хэш таблице
-        char valbuf[256] = {0}; 
-      char *valptr = valbuf;
-        if (HMget(hm, name, &valptr)) // если нашли, результат - 1
-          res = 1;
-      }
+      int res = HMget(hm, name, NULL); // проверка, определено ли имя 
       *sp = p; 
       return res; // возвращаем результат
     }
   }
-  if ((*p >= '0' && *p <= '9') || *p == '+' || *p == '-') {
+  if ((*p >= '0' && *p <= '9') || *p == '+' || *p == '-') { //если число
     char *pp = p;
-    long num = parse_number(&pp);
+    long num = parse_number(&pp); // обрабатываем как число
     *sp = pp; 
-    return num;
+    return num; // возвращаем результат
   }
  
+  // проверка на макрос
   char name[256] = {0};
   size_t i = 0;
-  while ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_' || (*p >= '0' && *p <= '9')) {
+  while ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_' || (*p >= '0' && *p <= '9')) { // извлекаем имя
     if (i + 1 < sizeof(name)) 
       name[i++] = *p;
     p++;
   }
-  name[i] = '\0';
-  if (i > 0 && hm) {
+  name[i] = '\0'; 
+
+  if (i > 0 && hm) { // имя прочитано и передана хэш-таблица
     char valbuf[1024] = {0};
     char *valptr = valbuf;
     if (HMget(hm, name, &valptr)) {
-      char *pp = skipws(valptr);
-      if (*pp == '+' || *pp == '-' || (*pp >= '0' && *pp <= '9')) {
+      char *pp = skipws(valptr); 
+      if (*pp == '+' || *pp == '-' || (*pp >= '0' && *pp <= '9')) { 
         long num = parse_number(&pp);
         *sp = p; 
         return num;
@@ -302,6 +299,7 @@ int parse_primary(char **sp, HashMap *hm)
   return 0;
 }
 
+// функция обработки условия
 int evalIfExpr(char *s, HashMap *hm)
 {
   char *p = s;

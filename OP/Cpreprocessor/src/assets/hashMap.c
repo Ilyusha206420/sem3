@@ -157,7 +157,8 @@ int HMget(HashMap *hm, char *key, char **buf)
   HMPnode *node = HMPfind(&hm->map[hashFunc(key) % hm->numberOfPockets], key);
   if (!node)
     return 0;
-  myStrCpy(node->val, buf);
+  if(buf)
+    myStrCpy(node->val, buf);
   return 1;
 }
 
