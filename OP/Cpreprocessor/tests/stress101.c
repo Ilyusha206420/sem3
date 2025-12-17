@@ -16,7 +16,6 @@
   int out = -1;
 #endif
 
-// nested alternation
 #if defined(X1)
   #if (X2 * (X3 + X4) - 5) > 0
     int nested = 1;
@@ -25,7 +24,6 @@
   #endif
 #endif
 
-// many sequential small conditionals
 #if (X1 == 1)
   int seq_a = 1;
 #endif
@@ -34,4 +32,26 @@
 #endif
 #if (X3 == 3)
   int seq_c = 3;
+#endif
+
+#if 1
+  #if 1
+    #if 1
+      #if 1 
+        #if 1
+          #if 1
+            #if 1
+              #if 1
+                #if 1
+                  #if 1
+                    int ok = 1;
+                  #endif
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif

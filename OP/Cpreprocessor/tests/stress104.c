@@ -1,4 +1,3 @@
-// stress105.c - large numeric constants and comparisons, nested elifs
 #define N1 1000
 #define N2 500
 #define N3 250
@@ -11,7 +10,6 @@
   int big = 0;
 #endif
 
-// interplay with redefines and modulo
 #undef N3
 #define N3 333
 #if ( (N1 + N2 + N3) % 3 ) == 0
@@ -20,7 +18,6 @@
   int big2 = 0;
 #endif
 
-// many elifs to push parser
 #if 0
   int many = 0;
 #elif 0

@@ -1,4 +1,3 @@
-// stress102.c - alternating redefines and deep elif ladder
 #define A 7
 #if A < 5
   int r = -1;
@@ -16,7 +15,6 @@
   int r2 = A;
 #endif
 
-// long elif ladder to stress parser
 #if 0
   int ladder = 0;
 #elif 0
@@ -28,3 +26,9 @@
 #else
   int ladder = -999;
 #endif
+
+#define mult(x, y) (x * y)
+int m(int x, int y)
+{
+  return mult(x, y);
+}
