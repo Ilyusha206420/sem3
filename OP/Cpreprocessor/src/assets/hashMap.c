@@ -4,41 +4,36 @@
 #include "myString.h"
 #include <stddef.h>
 
-// хэш функция FNV-1a
+// Простая хэш-таблица с списками в корзинах, используется для хранения макросов
+
+// FNV-1a хэш-функция для строк
 unsigned long hashFunc (char *str)
 {
-  unsigned long long hval = 0xcbf29ce484222325ULL; // базис из спецификации
+  unsigned long long hval = 0xcbf29ce484222325ULL;
   while (*str) {
-    hval ^= (unsigned long long)(unsigned char)*str++; 
-    hval *= 0x100000001b3ULL; // простое число
+    hval ^= (unsigned long long)(unsigned char)*str++;
+    hval *= 0x100000001b3ULL;
   }
   return (unsigned long)hval;
 }
 
-// инициализация пустой хэш таблицы, nop - количество карманов
-HashMap* HMinit(size_t nop) 
+// Инициализация хэш-таблицы с заданным количеством корзин
+HashMap* HMinit(size_t nop)
 {
   HashMap *out = (HashMap*)myAllocMemory(sizeof(HashMap));
-  if (!out)
-    return NULL;
+  if (!out) return NULL;
 
   out->map = (HMpocket*)myAllocMemory(sizeof(HMpocket) * nop);
-  if (!out->map) {
-    free(out);
-    return NULL;
-  }
+  if (!out->map) { free(out); return NULL; }
 
-  for (size_t i = 0; i < nop; i++) {
-    out->map[i] = (HMpocket) {NULL, NULL};
-  }
+  for (size_t i = 0; i < nop; i++) out->map[i] = (HMpocket){NULL, NULL};
 
   out->numberOfPockets = nop;
   out->numberOfElements = 0;
-
   return out;
 }
 
-// освобождение выделенной памяти для хэш таблицы
+// Освобождение всех узлов и структуры
 void HMfree(HashMap *hm)
 {
   for (size_t i = 0; i < hm->numberOfPockets; i++) {
@@ -55,27 +50,29 @@ void HMfree(HashMap *hm)
   free(hm);
 }
 
-// увеличение объема хэш таблицы и перераспредиление элементов
+// Увеличение размера таблицы (умножение корзин на 2)
 void HMresize(HashMap *hm)
 {
   size_t newSize = hm->numberOfPockets * 2;
   HMpocket *newMap = (HMpocket*)myAllocMemory(sizeof(HMpocket) * newSize);
-  if (!newMap)
-    return;
-  
+  if (!newMap) return;
+
+  for (size_t i = 0; i < newSize; i++) newMap[i] = (HMpocket){NULL, NULL};
+
   for (size_t i = 0; i < hm->numberOfPockets; i++) {
     HMPnode *node = hm->map[i].begin;
     while (node) {
+      HMPnode *next = node->next;
       HMpocket *pocket = &newMap[hashFunc(node->key) % newSize];
+      node->next = NULL;
       if (pocket->end) {
         pocket->end->next = node;
         pocket->end = node;
-      }
-      else {
+      } else {
         pocket->begin = node;
         pocket->end = node;
       }
-      node = node->next;
+      node = next;
     }
   }
 
@@ -84,116 +81,76 @@ void HMresize(HashMap *hm)
   hm->numberOfPockets = newSize;
 }
 
-// инициализация элемента хэш таблицы
+// Создать новый узел с копиями строк ключ/значение
 HMPnode* HMPNinit(char *key, char *val)
 {
   HMPnode *out = (HMPnode*)myAllocMemory(sizeof(HMPnode));
-  if (!out) 
-    return NULL;
-  out->key = (char*)myAllocMemory(sizeof(char) * (myStrGetLen(key) + 1));
-  if (!out->key) {
-    free(out);
-    return NULL;
-  } 
-  out->val = (char*)myAllocMemory(sizeof(char) * (myStrGetLen(val) + 1));
-  if (!out->val) {
-    free(out->key);
-    free(out);
-    return NULL;
-  }
+  if (!out) return NULL;
+
+  out->key = (char*)myAllocMemory(myStrGetLen(key) + 1);
+  if (!out->key) { free(out); return NULL; }
+  out->val = (char*)myAllocMemory(myStrGetLen(val) + 1);
+  if (!out->val) { free(out->key); free(out); return NULL; }
 
   myStrCpy(key, &out->key);
   myStrCpy(val, &out->val);
-
   out->next = NULL;
-  
   return out;
 }
 
-// поиск позиции запрашиваемого элемента
+// Найти узел в корзине по ключу
 HMPnode* HMPfind(HMpocket *pocket, char *key)
 {
   HMPnode *res = pocket->begin;
   while (res) {
-    if (myStrCmp(res->key, key)) {
-      return res; // если найден, возвращаем указатель
-    }
+    if (myStrCmp(res->key, key)) return res;
     res = res->next;
   }
-  return NULL; // если нет, возвращаем NULL
+  return NULL;
 }
 
-// добавление в хэш таблицу элемента
+// Добавление или обновление элемента
 int HMadd(HashMap *hm, char *key, char *val)
 {
-  if (hm->numberOfElements >= (hm->numberOfPockets / 2)) 
-    HMresize(hm);
+  if (hm->numberOfElements >= (hm->numberOfPockets / 2)) HMresize(hm);
 
   HMpocket *pocket = &hm->map[hashFunc(key) % hm->numberOfPockets];
   HMPnode *elem = HMPfind(pocket, key);
   if (elem) {
-    char *newVal = (char*)myAllocMemory(sizeof(char) * (myStrGetLen(val) + 1));
-    if (!newVal)
-      return -1; // ошибка добавления
-    
+    char *newVal = (char*)myAllocMemory(myStrGetLen(val) + 1);
+    if (!newVal) return -1;
     myStrCpy(val, &newVal);
-
     free(elem->val);
     elem->val = newVal;
-  }
-  else {
+  } else {
     HMPnode *newElem = HMPNinit(key, val);
-    if (!newElem)
-      return -1; // ошибка добавления
-
-    if (pocket->end)
-      pocket->end->next = newElem;
-    else
-      pocket->begin = newElem;
-      
+    if (!newElem) return -1;
+    if (pocket->end) pocket->end->next = newElem; else pocket->begin = newElem;
     pocket->end = newElem;
-
     hm->numberOfElements += 1;
   }
-  
   return 0;
 }
 
-// получение элемента хэш таблицы по ключу
+// Получение значения по ключу
 int HMget(HashMap *hm, char *key, char **buf)
 {
-  HMPnode *node = HMPfind(&hm->map[hashFunc(key) % hm->numberOfPockets], key); // поиск запрашиваемого элемента
-  if (!node) // если не нашли, 0
-    return 0;
-  if(buf) // если был передан указатель на буфер для записи, записываем
-    myStrCpy(node->val, buf);
-  return 1; // если нашли, 1
+  HMPnode *node = HMPfind(&hm->map[hashFunc(key) % hm->numberOfPockets], key);
+  if (!node) return 0;
+  if (buf) myStrCpy(node->val, buf);
+  return 1;
 }
 
-// удаление элемента хэш таблицы по ключу
+// Удаление элемента по ключу
 void HMdelete(HashMap *hm, char *key)
 {
-  HMpocket *pocket = &hm->map[hashFunc(key) % hm->numberOfPockets]; // указатель на карман хэш таблицы с запрашиваемым элементом
+  HMpocket *pocket = &hm->map[hashFunc(key) % hm->numberOfPockets];
   HMPnode *node = pocket->begin;
   HMPnode *prev = NULL;
-  while (node && !myStrCmp(node->key, key)) { // поиск запрашиваемого элемента
-    prev = node;
-    node = node->next;
-  }
-  if (!node)
-    return; // если не нашли - выход
-
-  // удаление найденного элемента и перестройка связей
-  if (pocket->begin == node)
-    pocket->begin = node->next; 
-
-  if (pocket->end == node)
-    pocket->end = prev;
-
-  if (prev)
-    prev->next = node->next;
-
-  free(node->key);
-  free(node->val);
-  free(node);
+  while (node && !myStrCmp(node->key, key)) { prev = node; node = node->next; }
+  if (!node) return;
+  if (pocket->begin == node) pocket->begin = node->next;
+  if (pocket->end == node) pocket->end = prev;
+  if (prev) prev->next = node->next;
+  free(node->key); free(node->val); free(node);
 }

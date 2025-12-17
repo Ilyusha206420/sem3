@@ -4,6 +4,8 @@
 #include "utils.h"
 #include "myString.h"
 
+// Реализация простого стека файлов, используемого препроцессором
+
 FileStack* FStackInit()
 {
   FileStack *out = (FileStack*)myAllocMemory(sizeof(FileStack));

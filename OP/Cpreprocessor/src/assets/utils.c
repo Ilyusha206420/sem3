@@ -1,11 +1,11 @@
 #include "utils.h"
 
-// выделение памяти, повторяющее попытку в случае неудачи
+// Попытки выделить память с ограничением числа попыток.
+// Возвращает NULL, если память выделить не удалось.
 void* myAllocMemory(size_t size) 
 {
-  int try = 0;
+  int attempt = 0;
   void *res = NULL;
-  while (try++, !res && try < MAX_ALLOC_ATTEMPTS) // выделяем память, пока не будет выделена, либо не будет превышена верхняя граница попыток
-    res = malloc(size);
+  while (attempt++ < MAX_ALLOC_ATTEMPTS && !res) res = malloc(size);
   return res;
 }

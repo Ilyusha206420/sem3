@@ -25,3 +25,6 @@ void FStackFree(FileStack *fs);
 
 int FStackPush(FileStack *fs, FILE *fp, char *filename, int protection);
 FileStruct* FStackPop(FileStack *fs);
+
+// Небольшая обёртка: стек файлов для обработки директив `#include`.
+// Каждая вершина хранит FILE* и имя файла, а также флаг защиты от двойного включения.
