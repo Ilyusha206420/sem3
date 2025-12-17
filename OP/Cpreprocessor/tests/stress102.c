@@ -28,7 +28,7 @@
 #endif
 
 #define mult(x, y) (x * y)
-int m(int x, int y)
+int m()
 {
-  return mult(x, y);
+  return mult(A, 2);
 }
