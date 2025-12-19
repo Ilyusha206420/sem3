@@ -131,6 +131,19 @@ Matrix Matrix::operator*(const Matrix& b)
   return out;
 }
 
+Matrix Matrix::operator*(int x) 
+{ 
+  Matrix out(_sizeX, _sizeY);
+  for (int i = 0; i < _sizeY; i++) {
+    for (int j = 0; j < _sizeX; j++) {
+      out[i][j] = 0;
+      for (int k = 0; k < _sizeX; k++) 
+        out[i][j] += _mat[i][k] * x;
+    }
+  }
+  return out;
+}
+
 Matrix Matrix::operator+(const Matrix& b) 
 {
   if(b.getX() != _sizeX || b.getY() != _sizeY)

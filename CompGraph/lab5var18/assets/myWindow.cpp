@@ -56,35 +56,40 @@ void myWindow::drawGeometry(Geometry& geom)
   std::vector<point> points = geom.getPoints();
   std::vector<face> faces = geom.getFaces();
 
-  point iterPoint = point({0, 0, 0});
-  // Matrix offsetMatrix = {1, 4, {
-  //   {0}, 
-  //   {0}, 
-  //   {0}, 
-  //   {0}}
-  // };
-  int dz = 0;
+  Matrix offset12 = {1, 4};
+  Matrix offset23 = {1, 4};
+  Matrix offset31 = {1, 4};
+
+  int i = 0;
   for (const auto &face : faces) {
-    SDL_SetRenderDrawColor(_renderer, face._color[0], face._color[1], face._color[2], face._color[3]);
-    // iterPoint = points[face._points[0]];
-    SDL_RenderDrawLine(_renderer, 
-      (int)((points[face._points[0]].mat[0][0] - points[face._points[0]].mat[2][0]) * 0.866), 
-      (int)(-points[face._points[0]].mat[1][0] + ((points[face._points[0]].mat[0][0] + points[face._points[0]].mat[2][0]) / 2)), 
-      (int)((points[face._points[1]].mat[0][0] - points[face._points[1]].mat[2][0]) * 0.866), 
-      (int)(-points[face._points[1]].mat[1][0] + ((points[face._points[1]].mat[0][0] + points[face._points[1]].mat[2][0]) / 2)) 
-    );
-    SDL_RenderDrawLine(_renderer, 
-      (int)((points[face._points[0]].mat[0][0] - points[face._points[0]].mat[2][0]) * 0.866), 
-      (int)(-points[face._points[0]].mat[1][0] + ((points[face._points[0]].mat[0][0] + points[face._points[0]].mat[2][0]) / 2)), 
-      (int)((points[face._points[2]].mat[0][0] - points[face._points[2]].mat[2][0]) * 0.866), 
-      (int)(-points[face._points[2]].mat[1][0] + ((points[face._points[2]].mat[0][0] + points[face._points[2]].mat[2][0]) / 2)) 
-    );
-    SDL_RenderDrawLine(_renderer, 
-      (int)((points[face._points[2]].mat[0][0] - points[face._points[2]].mat[2][0]) * 0.866), 
-      (int)(-points[face._points[2]].mat[1][0] + ((points[face._points[2]].mat[0][0] + points[face._points[2]].mat[2][0]) / 2)), 
-      (int)((points[face._points[1]].mat[0][0] - points[face._points[1]].mat[2][0]) * 0.866), 
-      (int)(-points[face._points[1]].mat[1][0] + ((points[face._points[1]].mat[0][0] + points[face._points[1]].mat[2][0]) / 2)) 
-    );
+    SDL_SetRenderDrawColor(_renderer, face._color[0], face._color[1], face._color[2], face._color[3]);    
+    offset12 = points[face._points[1]].mat + points[face._points[0]].mat * (-1);
+    offset23 = points[face._points[2]].mat + points[face._points[1]].mat * (-1);
+    offset31 = points[face._points[0]].mat + points[face._points[2]].mat * (-1);
+    i = 0;
+    
+    for (int y = points[face._points[0]].mat[0][1]; y < points[face._points[2]].mat[0][1]; y++) {
+      for (int x = points[face._points[0]].mat[0][0] + offset31[0][0] / offset31[1][0]; x < )
+    }
+    
+    // SDL_RenderDrawLine(_renderer, 
+    //   (int)((points[face._points[0]].mat[0][0] - points[face._points[0]].mat[2][0]) * 0.866), 
+    //   (int)(-points[face._points[0]].mat[1][0] + ((points[face._points[0]].mat[0][0] + points[face._points[0]].mat[2][0]) / 2)), 
+    //   (int)((points[face._points[1]].mat[0][0] - points[face._points[1]].mat[2][0]) * 0.866), 
+    //   (int)(-points[face._points[1]].mat[1][0] + ((points[face._points[1]].mat[0][0] + points[face._points[1]].mat[2][0]) / 2)) 
+    // );
+    // SDL_RenderDrawLine(_renderer, 
+    //   (int)((points[face._points[0]].mat[0][0] - points[face._points[0]].mat[2][0]) * 0.866), 
+    //   (int)(-points[face._points[0]].mat[1][0] + ((points[face._points[0]].mat[0][0] + points[face._points[0]].mat[2][0]) / 2)), 
+    //   (int)((points[face._points[2]].mat[0][0] - points[face._points[2]].mat[2][0]) * 0.866), 
+    //   (int)(-points[face._points[2]].mat[1][0] + ((points[face._points[2]].mat[0][0] + points[face._points[2]].mat[2][0]) / 2)) 
+    // );
+    // SDL_RenderDrawLine(_renderer, 
+    //   (int)((points[face._points[2]].mat[0][0] - points[face._points[2]].mat[2][0]) * 0.866), 
+    //   (int)(-points[face._points[2]].mat[1][0] + ((points[face._points[2]].mat[0][0] + points[face._points[2]].mat[2][0]) / 2)), 
+    //   (int)((points[face._points[1]].mat[0][0] - points[face._points[1]].mat[2][0]) * 0.866), 
+    //   (int)(-points[face._points[1]].mat[1][0] + ((points[face._points[1]].mat[0][0] + points[face._points[1]].mat[2][0]) / 2)) 
+    // );
   }
   // for (const auto &edge : edges) {
   //   SDL_RenderDrawLine(_renderer, 

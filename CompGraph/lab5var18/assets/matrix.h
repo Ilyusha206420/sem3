@@ -24,6 +24,7 @@ class Matrix
     void operator+=(const Matrix& b);
     void operator*=(const Matrix& b);
     Matrix operator*(const Matrix& b);
+    Matrix operator*(int x);
     Matrix operator+(const Matrix& b);
   
     ~Matrix();
