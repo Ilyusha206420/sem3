@@ -5,6 +5,7 @@
 #include <SDL2/SDL_timer.h>
 #include <cstdint>
 #include <vector>
+#include <iostream>
 
 myWindow::myWindow(int sizeX, int sizeY, const char* title) :
 _xsize(sizeX),
@@ -58,18 +59,20 @@ void myWindow::drawGeometry(Geometry& geom)
 
   Matrix offset12 = {1, 4};
   Matrix offset23 = {1, 4};
-  Matrix offset31 = {1, 4};
-
+  Matrix offset13 = {1, 4};
+  Matrix &xtgt = offset12;
   int i = 0;
   for (const auto &face : faces) {
     SDL_SetRenderDrawColor(_renderer, face._color[0], face._color[1], face._color[2], face._color[3]);    
     offset12 = points[face._points[1]].mat + points[face._points[0]].mat * (-1);
     offset23 = points[face._points[2]].mat + points[face._points[1]].mat * (-1);
-    offset31 = points[face._points[0]].mat + points[face._points[2]].mat * (-1);
+    offset13 = points[face._points[2]].mat + points[face._points[0]].mat * (-1);
+    yiterations = points[face._points[0]].mat[1][0] > points[face._points[2]].mat[1][0] ? -offset13[1][0] : offset13[1][0];
+    std::cout << yiterations << std::endl;
     i = 0;
-    
-    for (int y = points[face._points[0]].mat[0][1]; y < points[face._points[2]].mat[0][1]; y++) {
-      for (int x = points[face._points[0]].mat[0][0] + offset31[0][0] / offset31[1][0]; x < )
+    for (int y = points[face._points[0]].mat[1][0]; y != (int)points[face._points[2]].mat[1][0]; points[face._points[0]].mat[1][0] > points[face._points[2]].mat[1][0] ? y-- : y++) {
+      // for (int x = points[face._points[0]].mat[0][0] + offset13[0][0])
+      i++;
     }
     
     // SDL_RenderDrawLine(_renderer, 
