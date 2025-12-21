@@ -54,20 +54,26 @@ void myWindow::drawGeometry(Geometry& geom, int r, int g, int b, int a) {
 }
 
 
-bool isPointInsidePolygon(int x, int y, const std::vector<point>& points) {
-    int n = points.size();
-    bool inside = false;
+bool inTriangle(int x, int y, int x1, int y1, int x2, int y2, int x3, int y3) 
+{
+    int v0x = x3 - x1;
+    int v0y = y3 - y1;
+    int v1x = x2 - x1;
+    int v1y = y2 - y1;
+    int v2x = x - x1;
+    int v2y = y - y1;
 
-    for (int i = 0, j = n - 1; i < n; j = i++) {
-        int xi = points[i].mat[0][0], yi = points[i].mat[1][0];
-        int xj = points[j].mat[0][0], yj = points[j].mat[1][0];
+    float dot00 = v0x * v0x + v0y * v0y;
+    float dot01 = v0x * v1x + v0y * v1y;
+    float dot02 = v0x * v2x + v0y * v2y;
+    float dot11 = v1x * v1x + v1y * v1y;
+    float dot12 = v1x * v2x + v1y * v2y;
 
-        if (((yi > y) != (yj > y)) &&
-            (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
-            inside = !inside;
-            }
-    }
-    return inside;
+    float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+    float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+    return (u >= 0) && (v >= 0) && (u + v <= 1);
 }
 
 void myWindow::fill(Geometry& geom, int r, int g, int b, int a) {
@@ -91,9 +97,13 @@ void myWindow::fill(Geometry& geom, int r, int g, int b, int a) {
 
     for(int y = minY; y <= maxY; y++) {
         for(int x = minX; x <= maxX; x++) {
-            if(isPointInsidePolygon(x, y, points)) {
-                SDL_RenderDrawPoint(_renderer, x, y);
-            }
+            if (inTriangle(x, y, 
+            projections[0][0][0], projections[0][1][0],
+            projections[1][0][0], projections[1][1][0],
+            projections[2][0][0], projections[2][1][0])) 
+                {
+                    SDL_RenderDrawPoint(_renderer, x, y);
+                }
         }
     }
 }
