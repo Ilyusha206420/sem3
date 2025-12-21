@@ -11,7 +11,7 @@ class myWindow
   private:
     SDL_Window* _window;
     SDL_Renderer* _renderer;
-    int **_zbuf;
+    double **_zbuf;
     size_t _ysize;
     size_t _xsize;
   public:

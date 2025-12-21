@@ -9,7 +9,7 @@
 int main() 
 {
   myWindow wind(600, 400, "Lab4Var19");
-  Geometry geometry({300, 0, 0}, 
+  Geometry geometry({300, 200, 0}, 
     {{-40, -60, -40}, 
     {40, -60, -40},
     {40, -60, 40},
@@ -31,15 +31,15 @@ int main()
     const Uint8* keys = SDL_GetKeyboardState(NULL);
     if (keys[SDL_SCANCODE_RIGHT])  geometry.move(5, 0, 0);
     if (keys[SDL_SCANCODE_LEFT])   geometry.move(-5, 0, 0);
-    if (keys[SDL_SCANCODE_UP])     geometry.move(0, 5, 0);
-    if (keys[SDL_SCANCODE_DOWN])   geometry.move(0, -5, 0);
+    if (keys[SDL_SCANCODE_UP])     geometry.move(0, -5, 0);
+    if (keys[SDL_SCANCODE_DOWN])   geometry.move(0, 5, 0);
     if (keys[SDL_SCANCODE_RALT])   geometry.move(0, 0, 5);
     if (keys[SDL_SCANCODE_RSHIFT]) geometry.move(0, 0, -5);
 
-    if (keys[SDL_SCANCODE_Q]) geometry.rotateX(0.05);
-    if (keys[SDL_SCANCODE_A]) geometry.rotateX(-0.05);
-    if (keys[SDL_SCANCODE_W]) geometry.rotateY(0.05);
-    if (keys[SDL_SCANCODE_S]) geometry.rotateY(-0.05);
+    if (keys[SDL_SCANCODE_Q]) geometry.rotateX(-0.05);
+    if (keys[SDL_SCANCODE_A]) geometry.rotateX(0.05);
+    if (keys[SDL_SCANCODE_W]) geometry.rotateY(-0.05);
+    if (keys[SDL_SCANCODE_S]) geometry.rotateY(0.05);
     if (keys[SDL_SCANCODE_E]) geometry.rotateZ(0.05);
     if (keys[SDL_SCANCODE_D]) geometry.rotateZ(-0.05);
 

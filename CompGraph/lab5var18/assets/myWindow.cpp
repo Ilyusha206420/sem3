@@ -2,13 +2,11 @@
 #include "Geometry.h"
 #include "matrix.h"
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_timer.h>
 #include <algorithm>
-#include <cmath>
 #include <cstdint>
-#include <iterator>
 #include <vector>
-#include <iostream>
 
 static const float cos45 = 0.785398;
 
@@ -19,9 +17,9 @@ _ysize(sizeY)
   SDL_Init(SDL_INIT_VIDEO);
   this->_window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, sizeX, sizeY, SDL_WINDOW_SHOWN);
   this->_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-  this->_zbuf = new int*[sizeY];
+  this->_zbuf = new double*[sizeY];
   for (int i = 0; i < sizeY; i++)
-    this->_zbuf[i] = new int[sizeX];
+    this->_zbuf[i] = new double[sizeX];
 }
 
 myWindow::~myWindow() 
@@ -49,11 +47,6 @@ bool myWindow::handleEvents()
   return true;
 }
 
-int getLen(int x, int y)
-{
-  return (std::sqrt(pow(x, 2) + pow(y, 2)));
-}
-
 bool inTriangle(int x, int y, int x1, int y1, int x2, int y2, int x3, int y3) 
 {
   int v0x = x3 - x1;
@@ -77,17 +70,16 @@ bool inTriangle(int x, int y, int x1, int y1, int x2, int y2, int x3, int y3)
 }
 
 void getPlaneEquation(const Matrix& p1, const Matrix& p2, const Matrix& p3, 
-                      float& A, float& B, float& C, float& D) {
-    float v1x = p2[0][0] - p1[0][0], v1y = p2[1][0] - p1[1][0], v1z = p2[2][0] - p1[2][0];
-    float v2x = p3[0][0] - p1[0][0], v2y = p3[1][0] - p1[1][0], v2z = p3[2][0] - p1[2][0];
-    
-    float nvx, nvy, nvz;
-
-    A = v1y * v2z - v1z * v2y;
-    B = v1z * v2x - v1x * v2z;
-    C = v1x * v2y - v1y * v2x;
-    
-    D = -(A * p1[0][0] + B * p1[1][0] + C * p1[2][0]);
+                    double& A, double& B, double& C, double& D) 
+{
+  float v1x = p2[0][0] - p1[0][0], v1y = p2[1][0] - p1[1][0], v1z = p2[2][0] - p1[2][0];
+  float v2x = p3[0][0] - p1[0][0], v2y = p3[1][0] - p1[1][0], v2z = p3[2][0] - p1[2][0];
+  
+  A = v1y * v2z - v1z * v2y;
+  B = v1z * v2x - v1x * v2z;
+  C = v1x * v2y - v1y * v2x;
+  
+  D = -(A * p1[0][0] + B * p1[1][0] + C * p1[2][0]);
 }
 
 void myWindow::drawGeometry(Geometry& geom) 
@@ -95,7 +87,7 @@ void myWindow::drawGeometry(Geometry& geom)
   SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
   for (int i = 0; i < _ysize; i++) {
     for (int j = 0; j < _xsize; j++) {
-      this->_zbuf[i][j] = INT32_MAX;
+      this->_zbuf[i][j] = INT32_MIN;
       SDL_RenderDrawPoint(_renderer, j, i);
     }
   }
@@ -104,22 +96,26 @@ void myWindow::drawGeometry(Geometry& geom)
   std::vector<face> faces = geom.getFaces();
   int ymax = 0, xmax = 0;
   int ymin = 0, xmin = 0;
-  int z = 0;
+  double z = 0;
   Matrix projections[3] = {Matrix(1, 3), Matrix(1, 3), Matrix(1, 3)};
-  float A = 0, B = 0, C = 0, D = 0;
+  double A = 0, B = 0, C = 0, D = 0;
   for (const auto &face : faces) {
     getPlaneEquation(points[face._points[0]].mat, points[face._points[1]].mat, points[face._points[2]].mat, A, B, C, D);
     for (int i = 0; i < 3; i++) {
-      projections[i][0][0] = points[face._points[i]].mat[0][0] - points[face._points[i]].mat[2][0];
-      projections[i][1][0] = -points[face._points[i]].mat[1][0] + ((points[face._points[i]].mat[0][0] + points[face._points[i]].mat[2][0]) / 2);
+      projections[i][0][0] = points[face._points[i]].mat[0][0];
+      projections[i][1][0] = points[face._points[i]].mat[1][0];
     }
+    
     ymax = std::max(std::max(projections[0][1][0], projections[1][1][0]), projections[2][1][0]);
     xmax = std::max(std::max(projections[0][0][0], projections[1][0][0]), projections[2][0][0]);
     ymin = std::min(std::min(projections[0][1][0], projections[1][1][0]), projections[2][1][0]);
     xmin = std::min(std::min(projections[0][0][0], projections[1][0][0]), projections[2][0][0]);
+    
+    ymax = ymax > _ysize ? _ysize : ymax;
+    xmax = xmax > _xsize ? _xsize : xmax;
     SDL_SetRenderDrawColor(_renderer, face._color[0], face._color[1], face._color[2], face._color[3]);
-    for (int y = ymin; y < ymax; y++) {
-      for (int x = xmin; x < xmax; x++) {
+    for (int y = ymin < 0 ? 0 : ymin; y < ymax; y++) {
+      for (int x = xmin < 0 ? 0 : xmin; x < xmax; x++) {
         if (inTriangle(x, y, 
           projections[0][0][0], projections[0][1][0],
           projections[1][0][0], projections[1][1][0],
@@ -127,23 +123,12 @@ void myWindow::drawGeometry(Geometry& geom)
         {
           
           z = -((A * x) + (B * y) + D) / C;
-          if(z < _zbuf[y][x]) {
+          if(z > _zbuf[y][x]) {
             this->_zbuf[y][x] = z;
             SDL_RenderDrawPoint(_renderer, x, y);
           }
         }
       }
     }
-    
-    // SDL_RenderDrawLine(_renderer, projections[0][0][0], projections[0][1][0], projections[1][0][0], projections[1][1][0]);
-    // SDL_RenderDrawLine(_renderer, projections[1][0][0], projections[1][1][0], projections[2][0][0], projections[2][1][0]);
-    // SDL_RenderDrawLine(_renderer, projections[2][0][0], projections[2][1][0], projections[0][0][0], projections[0][1][0]);
   }
 }
-  // for (const auto &edge : edges) {
-  //   SDL_RenderDrawLine(_renderer, 
-  //     (int)((points[edge.a_ind].mat[0][0] - points[edge.a_ind].mat[2][0]) * 0.866), 
-  //     (int)(-points[edge.a_ind].mat[1][0] + ((points[edge.a_ind].mat[0][0] + points[edge.a_ind].mat[2][0]) / 2)), 
-  //     (int)((points[edge.b_ind].mat[0][0] - points[edge.b_ind].mat[2][0]) * 0.866), 
-  //     (int)(-points[edge.b_ind].mat[1][0] + ((points[edge.b_ind].mat[0][0] + points[edge.b_ind].mat[2][0]) / 2)));
-  // }
