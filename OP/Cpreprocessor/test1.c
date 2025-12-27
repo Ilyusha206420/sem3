@@ -1,0 +1,15 @@
+  int s0 = 10;
+    int s1 = 11;
+      int s2 = 12;
+      int s3 = 13;
+        int s4 = 15;
+  int valA = 42;
+  int valB = (21*2);
+  int chain = 3;
+  int mix = 1;
+  int seq0 = 0;
+  int seq1 = 1;
+  int seq2 = 2;
+  int seq3 = 3;
+  int seq4 = 4;
+  int final_ok = 1;
