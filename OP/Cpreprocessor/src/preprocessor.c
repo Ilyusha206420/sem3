@@ -9,18 +9,6 @@
 #include "assets/utils.h"
 #include "assets/expr.h"
 
-/*
-  Небольшая организация файла и комментарии
-  Этот файл реализует простую логику препроцессора:
-  - обработка директив `#include`, `#define`, `#undef`, `#if/ifdef/ifndef/elif/else/endif`
-  - хранение макросов в `HashMap`
-  - поддержка функциональных макросов (парсер определения и вызова)
-
-  Формат хранения функциональных макросов в `HashMap`:
-    "<FUNC>\x1Fparam1\x1Fparam2\x1E<body>"
-  где разделитель параметров — 0x1F, а 0x1E отделяет список параметров от тела.
-*/
-
 int *ifActiveStack = NULL;
 int *branchTakenStack = NULL;
 size_t ifStackTop = 0;
